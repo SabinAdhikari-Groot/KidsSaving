@@ -1,0 +1,138 @@
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background-color: #f9f7c9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #ffcc5c;
+    padding: 5px;
+    height: 100vh;
+    color: #fff;
+    text-align: center;
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sidebar h2 {
+    font-size: 16px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+.sidebar ul li {
+    margin: 10px 0;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 16px;
+    display: block;
+    padding: 10px;
+    background-color: #ff6f61;
+    border-radius: 10px;
+}
+
+.sidebar ul li a:hover {
+    background-color: #ff5733;
+}
+
+
+.main-content {
+    margin-left: 270px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    padding: 50px;
+    flex-grow: 1;
+    text-align: center;
+}
+/* Help Section */
+.help-info {
+    background-color: #fff3cd;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.help-info ul {
+    list-style: none;
+    padding: 0;
+}
+
+.help-info ul li {
+    font-size: 18px;
+    margin: 10px 0;
+    color: #ff6f61;
+}
+
+/* Contact Form */
+.contact-form {
+    background-color: #d4edda;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.contact-form label {
+    display: block;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.contact-form input, .contact-form textarea {
+    width: 80%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.contact-form textarea {
+    height: 100px;
+}
+
+.submit-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.submit-btn:hover {
+    background-color: #218838;
+}
+
+.footer {
+    padding: 20px;
+    background-color: #ff6f61;
+    color: #fff;
+    font-size: 16px;
+    text-align: center;
+    width: 100%;
+    margin-top: auto;
+}

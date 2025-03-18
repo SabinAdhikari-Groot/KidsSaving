@@ -1,0 +1,131 @@
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background-color: #f9f7c9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #ffcc5c;
+    padding: 5px;
+    height: 100vh;
+    color: #fff;
+    text-align: center;
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sidebar h2 {
+    font-size: 16px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+.sidebar ul li {
+    margin: 10px 0;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 16px;
+    display: block;
+    padding: 10px;
+    background-color: #ff6f61;
+    border-radius: 10px;
+}
+
+.sidebar ul li a:hover {
+    background-color: #ff5733;
+}
+
+.main-content {
+    margin-left: 270px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 80%;
+    max-width: 800px;
+    padding: 50px;
+    text-align: left; /* Align text to the left */
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #ff6f61;
+    font-size: 36px;
+    text-align: left; /* Ensure headings are aligned to the left */
+    margin-bottom: 20px;
+}
+
+.content {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #fff3cd;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: left; /* Align content inside to the left */
+}
+
+.content h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.container ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.container li {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px 0;
+    border-left: 3px solid #4CAF50;
+}
+
+button {
+    background-color: #ff6f61;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background-color: #ff5733;
+}
+
+.footer {
+    padding: 20px;
+    background-color: #ff6f61;
+    color: #fff;
+    font-size: 16px;
+    text-align: center;
+    width: 100%;
+    margin-top: auto;
+}

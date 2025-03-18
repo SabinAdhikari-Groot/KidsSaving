@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="login.css"> 
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm" action="login.php" method="POST">
+            <label for="username">Email</label>
+            <input type="text" id="username" name="username" required>
+            
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            
+            <label for="user_type">Login as:</label>
+            <select id="user_type" name="user_type" required>
+                <option value="Child">Child</option>
+                <option value="Parent">Parent</option>
+            </select>
+            
+            <div>
+                <input type="checkbox" id="terms" name="terms" required>
+                <label for="terms">I agree to the <a href="terms.html" target="_blank">terms and services</a>.</label>
+            </div>
+            
+            <button type="submit">Login</button>
+        </form>
+        
+        <!-- Additional Links -->
+        <div class="links">
+            <a href="forgot-password.php">Forgotten password?</a>
+            <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+        </div>
+        
+        <div id="error" class="error"></div>
+    </div>
+    
+    <script src="login.js"></script>
+</body>
+</html>

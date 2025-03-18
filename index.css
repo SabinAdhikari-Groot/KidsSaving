@@ -1,0 +1,227 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+h1, h2, h3 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.highlight {
+    color: #000000;
+}
+
+p {
+    line-height: 1.6;
+    margin: 10px 0;
+}
+
+/* Header Styles */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #3498db, #2ecc71);
+    color: #fff;
+    border-radius: 0 0 20px 20px;
+}
+
+.header h1 {
+    font-size: 2.5em;
+}
+
+.header p {
+    font-size: 1.2em;
+    margin: 10px 0 0;
+}
+
+/* Button Container for Header */
+.header .button-container {
+    display: flex;
+    gap: 10px;
+}
+
+.header .button-container button {
+    background-color: #fff;
+    color: #3498db;
+    border: none;
+    padding: 10px 15px;
+    font-size: 0.9em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.header .button-container button:hover {
+    background-color: #3498db;
+    color: #fff;
+}
+
+/* Features Section */
+.features-section {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.features-section h2 {
+    font-size: 2em;
+    margin-bottom: 30px;
+}
+
+.features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+    margin-bottom: 15px;
+}
+
+.card-image {
+    max-width: 100px;
+    margin-bottom: 10px;
+}
+
+.card h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+/* Goals Section */
+.goals-section {
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #ecf0f1;
+    border-radius: 20px;
+    margin: 20px;
+}
+
+.goals-section p {
+    max-width: 800px;
+    margin: 0 auto;
+    font-size: 1.1em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .features {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card {
+        width: 90%;
+    }
+
+    .header h1 {
+        font-size: 2em;
+    }
+
+    .header p {
+        font-size: 1em;
+    }
+
+    .header .button-container {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+
+/* Responsive Design for Mobile */
+@media (max-width: 480px) {
+    .header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 15px;
+    }
+
+    .header h1 {
+        font-size: 1.8em;
+    }
+
+    .header p {
+        font-size: 0.9em;
+        margin-bottom: 10px;
+    }
+
+    .header .button-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px; /* Increased gap */
+        margin-top: 10px;
+    }
+
+    .features {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .card {
+        width: 95%;
+        margin-bottom: 20px;
+    }
+
+    .goals-section {
+        padding: 20px;
+    }
+
+    .goals-section p {
+        font-size: 1em;
+    }
+}
+.footer {
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    border-top: 1px solid #e7e7e7;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.footer .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.footer p {
+    margin: 5px 0;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.social-links a {
+    text-decoration: none;
+    color: #007bff;
+    margin: 0 5px;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+    color: #0056b3;
+}
