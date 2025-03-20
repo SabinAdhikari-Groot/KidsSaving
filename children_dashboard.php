@@ -17,7 +17,7 @@
 
 <body>
     <aside class="sidebar">
-        <h2>KidsSaving</h2>
+        <h2>🎮 KidsSaving</h2>
         <ul>
             <li><a href="children_dashboard.php">🏠 Home</a></li>
             <li><a href="children_tasks.php">📝 Tasks</a></li>
@@ -60,15 +60,20 @@
                         // Output data of each row
                         while ($row = $result->fetch_assoc()) {
                         echo "<li>";
-                            echo "<h3 style='cursor:pointer; color:blue;' onclick='toggleContent(" . $row['id'] . ")'>"
-                                . htmlspecialchars($row['title']) . " ⬇️</h3>" ; echo "<div id='content_" . $row['id']
-                                . "' style='display:none; padding-left:10px; margin-top:5px; background:#f9f9f9; border-left:3px solid #4CAF50;'>"
-                                ; echo "<p>" . nl2br(htmlspecialchars($row['content'])) . "</p>" ; echo "</div>" ;
-                                echo "</li>" ; } } else { echo "<li>No financial notes available.</li>" ; }
-                                // Close connection
-                                $conn->close();
+                        echo "<h3 style='color:blue;'>" . htmlspecialchars($row['title']) . "</h3>";
+                        echo "<div id='content_" . $row['id']
+                        . "' style='display:block; padding-left:10px; margin-top:5px; background:#f9f9f9; border-left:3px solidrgb(2, 2, 2);'>";
+                        echo "<p>" . nl2br(htmlspecialchars($row['content'])) . "</p>";
+                        echo "</div>";
+                        echo "</li>";
+                        } } else { 
+                        echo "<li>No financial notes available.</li>"; 
+                        }
 
-                                ?>
+                        // Close connection
+                        $conn->close();
+
+                        ?>
                 </ul>
             </div>
 

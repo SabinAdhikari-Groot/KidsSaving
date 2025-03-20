@@ -17,59 +17,76 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Check if the query returned any result
 if ($result->num_rows > 0) {
     $bank_account = $result->fetch_assoc();
     $balance = $bank_account['balance'];
 } else {
-    // Handle the case where no bank account is found
     echo "<script>alert('No bank account found for this user.');</script>";
     exit();
+}
+
+// Fetch total earnings from user_earning table
+$sql = "SELECT total_earnings FROM user_earnings WHERE user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    $earnings = $result->fetch_assoc();
+    $total_earnings = $earnings['total_earnings'];
+} else {
+    // If no record exists, create one with 0 earnings
+    $total_earnings = 0;
+    $sql = "INSERT INTO user_earning (user_id, total_earnings) VALUES (?, 0)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
 }
 
 // Handle deposit action
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['deposit-amount'])) {
     $deposit_amount = $_POST['deposit-amount'];
 
-    // Update balance after deposit
-    $new_balance = $balance + $deposit_amount;
-    $sql = "UPDATE bank_accounts SET balance = ? WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("di", $new_balance, $user_id);
-    $stmt->execute();
+    if ($deposit_amount > $total_earnings) {
+        echo "<script>alert('You do not have sufficient funds in earnings!');</script>";
+    } else {
+        $new_balance = $balance + $deposit_amount;
+        $new_total_earnings = $total_earnings - $deposit_amount;
 
-    // Record the deposit transaction
-    $sql = "INSERT INTO transactions (account_id, transaction_type, amount) 
-            VALUES ((SELECT account_id FROM bank_accounts WHERE id = ?), 'deposit', ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ii", $user_id, $deposit_amount);
-    $stmt->execute();
+        $sql = "UPDATE bank_accounts SET balance = ? WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("di", $new_balance, $user_id);
+        $stmt->execute();
 
-    // Refresh the page to show updated balance and activity
-    header('Location: children_virtual_bank.php');
-    exit();
+        $sql = "UPDATE user_earnings SET total_earnings = ? WHERE user_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("di", $new_total_earnings, $user_id);
+        $stmt->execute();
+
+        header('Location: children_virtual_bank.php');
+        exit();
+    }
 }
 
 // Handle withdraw action
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['withdraw-amount'])) {
     $withdraw_amount = $_POST['withdraw-amount'];
 
-    // Check if the balance is sufficient for withdrawal
     if ($balance >= $withdraw_amount) {
         $new_balance = $balance - $withdraw_amount;
+        $new_total_earnings = $total_earnings + $withdraw_amount;
+
         $sql = "UPDATE bank_accounts SET balance = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("di", $new_balance, $user_id);
         $stmt->execute();
 
-        // Record the withdrawal transaction
-        $sql = "INSERT INTO transactions (account_id, transaction_type, amount) 
-                VALUES ((SELECT account_id FROM bank_accounts WHERE id = ?), 'withdrawal', ?)";
+        $sql = "UPDATE user_earnings SET total_earnings = ? WHERE user_id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ii", $user_id, $withdraw_amount);
+        $stmt->bind_param("di", $new_total_earnings, $user_id);
         $stmt->execute();
-        
-        // Refresh the page to show updated balance and activity
+
         header('Location: children_virtual_bank.php');
         exit();
     } else {
@@ -110,13 +127,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['withdraw-amount'])) {
             <h1>🏦 Your Virtual Bank</h1>
             <p>Manage your money by depositing and withdrawing funds!</p>
 
-            <!-- Bank Account Details -->
             <div class="bank-account">
-                <h2>Bank Balance</h2>
-                <p id="bank-balance">$<?php echo number_format($balance, 2); ?></p>
+                <h2>Bank Balance: $<?php echo number_format($balance, 2); ?> | Earnings:
+                    $<?php echo number_format($total_earnings, 2); ?></h2>
             </div>
 
-            <!-- Deposit Section -->
             <div class="transaction-section">
                 <h2>Deposit Money</h2>
                 <form action="children_virtual_bank.php" method="POST">
@@ -126,7 +141,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['withdraw-amount'])) {
                 </form>
             </div>
 
-            <!-- Withdraw Section -->
             <div class="transaction-section">
                 <h2>Withdraw Money</h2>
                 <form action="children_virtual_bank.php" method="POST">
@@ -135,46 +149,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['withdraw-amount'])) {
                     <button type="submit" class="transaction-btn">Withdraw</button>
                 </form>
             </div>
-
-            <!-- Bank Activity Log -->
-            <div class="bank-activity">
-                <h2>Recent Activity</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Transaction</th>
-                            <th>Amount</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        // Fetch the recent transactions
-                        $sql = "SELECT transaction_type, amount, transaction_date 
-                                FROM transactions 
-                                WHERE account_id = (SELECT account_id FROM bank_accounts WHERE id = ?)
-                                ORDER BY transaction_date DESC LIMIT 5";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->bind_param("i", $user_id);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-
-                        if ($result->num_rows > 0) {
-                            while ($row = $result->fetch_assoc()) {
-                                echo "<tr>";
-                                echo "<td>" . ucfirst($row['transaction_type']) . "</td>";
-                                echo "<td>$" . number_format($row['amount'], 2) . "</td>";
-                                echo "<td>" . $row['transaction_date'] . "</td>";
-                                echo "</tr>";
-                            }
-                        } else {
-                            echo "<tr><td colspan='3'>No recent transactions</td></tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
-            </div>
-
         </div>
     </div>
 

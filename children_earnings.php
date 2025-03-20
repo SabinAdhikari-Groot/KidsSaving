@@ -4,7 +4,21 @@ include 'db.php';
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch earnings
+// Ensure the user has an entry in the earnings table
+$init_query = "INSERT INTO user_earnings (user_id, total_earnings) SELECT ?, 0.00 WHERE NOT EXISTS (SELECT 1 FROM user_earnings WHERE user_id = ?);";
+$stmt = $conn->prepare($init_query);
+$stmt->bind_param("ii", $user_id, $user_id);
+$stmt->execute();
+
+// Fetch total earnings
+$total_earnings_query = "SELECT total_earnings FROM user_earnings WHERE user_id = ?";
+$stmt = $conn->prepare($total_earnings_query);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$total_earnings = $result->fetch_assoc()['total_earnings'] ?? 0.00;
+
+// Fetch earnings details
 $earnings_query = "SELECT source, earned_date, amount FROM earnings WHERE user_id = ? ORDER BY earned_date DESC LIMIT 5";
 $stmt = $conn->prepare($earnings_query);
 $stmt->bind_param("i", $user_id);
@@ -38,7 +52,7 @@ $current_goal = $goal_result->fetch_assoc();
             <li><a href="children_tasks.php">📝 Tasks</a></li>
             <li><a href="children_earnings.php">💰 Earnings</a></li>
             <li><a href="children_virtual_bank.php">🏦 Virtual Bank</a></li>
-            <li><a href="virtual_store.php">🛍️ Virtual Store</a></li>
+            <li><a href="virtual_store.php">🛒 Virtual Store</a></li>
             <li><a href="leaderboard.php">🏆 Leaderboard</a></li>
             <li><a href="children_chat.php">💬 Chat</a></li>
             <li><a href="children_account.php">👤 Account</a></li>
@@ -49,7 +63,7 @@ $current_goal = $goal_result->fetch_assoc();
 
     <div class="main-content">
         <div class="container">
-            <h1>💰 Your Earnings & Savings</h1>
+            <h1>💰 Your Earnings: $<?php echo number_format($total_earnings, 2); ?></h1>
             <p>Track your earnings, savings goals, and progress here!</p>
 
             <!-- Earnings Table -->
@@ -92,59 +106,9 @@ $current_goal = $goal_result->fetch_assoc();
                     <button class="create-goal-btn" id="show-goal-form">Create New Goal</button>
                     <?php } ?>
                 </div>
-
-                <!-- Goal Creation Form (Initially Hidden) -->
-                <div id="goal-form-container" style="display: none;">
-                    <h3>Create a Savings Goal</h3>
-                    <form id="goal-form">
-                        <label for="goal_name">Goal Name:</label>
-                        <input type="text" id="goal_name" name="goal_name" required>
-
-                        <label for="target_amount">Target Amount ($):</label>
-                        <input type="number" id="target_amount" name="target_amount" required step="0.01">
-
-                        <button type="submit">Save Goal</button>
-                        <button type="button" id="cancel-goal">Cancel</button>
-                    </form>
-                </div>
             </div>
         </div>
     </div>
-
-    <footer class="footer">
-        <p>&copy; 2025 KidsSaving. Learn, Save, and Have Fun!</p>
-    </footer>
-
-    <script>
-    $(document).ready(function() {
-        // Show goal creation form
-        $("#show-goal-form").click(function() {
-            $("#goal-form-container").show();
-            $("#show-goal-form").hide();
-        });
-
-        // Hide goal creation form
-        $("#cancel-goal").click(function() {
-            $("#goal-form-container").hide();
-            $("#show-goal-form").show();
-        });
-
-        // Submit goal form using AJAX
-        $("#goal-form").submit(function(e) {
-            e.preventDefault();
-            $.ajax({
-                url: "save_goal.php",
-                type: "POST",
-                data: $(this).serialize(),
-                success: function(response) {
-                    $("#goal-container").html(response);
-                    $("#goal-form-container").hide();
-                }
-            });
-        });
-    });
-    </script>
-
 </body>
 
 </html>

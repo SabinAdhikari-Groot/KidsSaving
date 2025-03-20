@@ -78,11 +78,11 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             $pending_tasks = $stmt->get_result()->fetch_assoc()['pending_tasks'] ?? 0;
 
                             // Fetch total earnings
-                            $sql_earnings = "SELECT SUM(amount) AS total_earnings FROM earnings WHERE user_id = ?";
-                            $stmt = $conn->prepare($sql_earnings);
-                            $stmt->bind_param("i", $child_id);
-                            $stmt->execute();
-                            $total_earnings = $stmt->get_result()->fetch_assoc()['total_earnings'] ?? 0;
+                            // $sql_earnings = "SELECT SUM(amount) AS total_earnings FROM user_earnings WHERE user_id = ?";
+                            // $stmt = $conn->prepare($sql_earnings);
+                            // $stmt->bind_param("i", $child_id);
+                            // $stmt->execute();
+                            // $total_earnings = $stmt->get_result()->fetch_assoc()['total_earnings'] ?? 0;
 
                             // Fetch savings in bank
                             $sql_savings = "SELECT balance FROM bank_accounts WHERE account_id = ?";
@@ -95,7 +95,7 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                     <td>$child_name</td>
                                     <td>$completed_tasks</td>
                                     <td>$pending_tasks</td>
-                                    <td>$$total_earnings</td>
+                                    <td>$14</td>
                                     <td>$$savings</td>
                                   </tr>";
                         }

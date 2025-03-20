@@ -85,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <li><a href="admin_managing_users.php">Manage Users</a></li>
             <li><a href="admin_adding_notes.php">Manage Finance Notes</a></li>
             <li><a href="admin_managing_quizzes.php">Manage Quizzes</a></li>
+            <li><a href="admin_manage_store.php">Manage Store</a></li>
             <li><a href="logout.php">Log out</a></li>
         </ul>
     </aside>

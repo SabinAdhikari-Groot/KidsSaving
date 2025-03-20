@@ -1,39 +1,50 @@
 <?php
 session_start();
-require_once 'db.php'; // Include database connection
+require_once 'db.php'; // Database connection file
 
-// Check if the user is logged in
+// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    die("User not logged in.");
+    header('Location: login.php');
+    exit();
 }
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch current earnings from the database
-$sql = "SELECT current_earning FROM children_earnings WHERE user_id = ?";
+// Fetch total earnings from user_earning table
+$sql = "SELECT total_earnings FROM user_earnings WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
-$earning = $result->fetch_assoc();
-$current_earning = $earning['current_earning'] ?? 0.00;
+
+if ($result->num_rows > 0) {
+    $earnings = $result->fetch_assoc();
+    $total_earnings = $earnings['total_earnings'];
+} else {
+    // If no record exists, create one with 0 earnings
+    $total_earnings = 0;
+    $sql = "INSERT INTO user_earnings (user_id, total_earnings) VALUES (?, 0)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+}
 
 // Process purchase
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['itemPrice'])) {
     $itemPrice = floatval($_POST['itemPrice']);
 
     // Check if the user has enough money
-    if ($current_earning >= $itemPrice) {
-        // Deduct the price from current earnings
-        $new_earning = $current_earning - $itemPrice;
+    if ($total_earnings >= $itemPrice) {
+        // Deduct the price from total earnings
+        $new_total_earnings = $total_earnings - $itemPrice;
 
         // Update earnings in the database
-        $update_sql = "UPDATE children_earnings SET current_earning = ? WHERE user_id = ?";
+        $update_sql = "UPDATE user_earnings SET total_earnings = ? WHERE user_id = ?";
         $update_stmt = $conn->prepare($update_sql);
-        $update_stmt->bind_param("di", $new_earning, $user_id);
+        $update_stmt->bind_param("di", $new_total_earnings, $user_id);
 
         if ($update_stmt->execute()) {
-            $current_earning = $new_earning; // Update the displayed earnings
+            $total_earnings = $new_total_earnings; // Update the displayed earnings
             $message = "Item purchased successfully!";
         } else {
             $message = "Error updating earnings.";
@@ -42,6 +53,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['itemPrice'])) {
         $message = "Insufficient funds!";
     }
 }
+
+// Fetch items from the database
+$item_sql = "SELECT * FROM store_items";
+$item_stmt = $conn->prepare($item_sql);
+$item_stmt->execute();
+$item_result = $item_stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -92,46 +109,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['itemPrice'])) {
 
             <!-- Current Earnings -->
             <div class="earnings-info">
-                <h2>Your Current Earnings: $<?= number_format($current_earning, 2); ?></h2>
+                <h2>Your Current Earnings: $<?= number_format($total_earnings, 2); ?></h2>
             </div>
 
             <!-- Store Items -->
             <div class="store-items">
+                <?php while ($item = $item_result->fetch_assoc()) : ?>
                 <form method="POST" onsubmit="confirmPurchase(event)">
                     <div class="item-card">
-                        <img src="item1.jpg" alt="Item 1">
-                        <h3>Item 1</h3>
-                        <p>$10.00</p>
-                        <button type="submit" name="itemPrice" value="10.00">Buy</button>
+                        <img src="<?= $item['item_image']; ?>" alt="<?= $item['item_name']; ?>">
+                        <h3><?= htmlspecialchars($item['item_name']); ?></h3>
+                        <p>$<?= number_format($item['item_price'], 2); ?></p>
+                        <button type="submit" name="itemPrice" value="<?= $item['item_price']; ?>">Buy</button>
                     </div>
                 </form>
-
-                <form method="POST" onsubmit="confirmPurchase(event)">
-                    <div class="item-card">
-                        <img src="item2.jpg" alt="Item 2">
-                        <h3>Item 2</h3>
-                        <p>$15.00</p>
-                        <button type="submit" name="itemPrice" value="15.00">Buy</button>
-                    </div>
-                </form>
-
-                <form method="POST" onsubmit="confirmPurchase(event)">
-                    <div class="item-card">
-                        <img src="item3.jpg" alt="Item 3">
-                        <h3>Item 3</h3>
-                        <p>$20.00</p>
-                        <button type="submit" name="itemPrice" value="20.00">Buy</button>
-                    </div>
-                </form>
-
-                <form method="POST" onsubmit="confirmPurchase(event)">
-                    <div class="item-card">
-                        <img src="item4.jpg" alt="Item 4">
-                        <h3>Item 4</h3>
-                        <p>$25.00</p>
-                        <button type="submit" name="itemPrice" value="25.00">Buy</button>
-                    </div>
-                </form>
+                <?php endwhile; ?>
             </div>
         </div>
     </div>

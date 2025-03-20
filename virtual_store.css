@@ -129,6 +129,21 @@ body {
     background-color: #ff5733;
 }
 
+button {
+    background-color: #ff6f61;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background-color: #ff5733;
+}
+
 .footer {
     padding: 20px;
     background-color: #ff6f61;

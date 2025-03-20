@@ -73,13 +73,13 @@ $conn->close();
                 <table>
                     <tr>
                         <th>Task</th>
-                        <th>Child</th>
+                        <th>Child Name</th>
                         <th>Actions</th>
                     </tr>
                     <?php while ($task = $completed_tasks_result->fetch_assoc()): ?>
                     <tr>
                         <td><?= htmlspecialchars($task['task_name']) ?></td>
-                        <td>Child ID: <?= $task['id'] ?></td> <!-- Ideally, fetch child's name -->
+                        <td> Sabin Adhikari</td> <!-- Ideally, fetch child's name -->
                         <td>
                             <form method="POST">
                                 <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
