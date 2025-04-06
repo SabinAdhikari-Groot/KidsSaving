@@ -11,7 +11,7 @@ body {
 .sidebar {
     width: 250px;
     background-color: #ffcc5c;
-    padding: 5px;
+    padding: 15px;
     height: 100vh;
     color: #fff;
     text-align: center;
@@ -21,10 +21,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar h2 {
-    font-size: 16px;
+    font-size: 18px;
+    margin-bottom: 15px;
 }
 
 .sidebar ul {
@@ -34,7 +36,7 @@ body {
 }
 
 .sidebar ul li {
-    margin: 10px 0;
+    margin: 12px 0;
 }
 
 .sidebar ul li a {
@@ -42,82 +44,130 @@ body {
     color: #fff;
     font-size: 16px;
     display: block;
-    padding: 10px;
+    padding: 12px;
     background-color: #ff6f61;
     border-radius: 10px;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .sidebar ul li a:hover {
     background-color: #ff5733;
+    transform: scale(1.05);
 }
-
+/* Main Content Styling */
 .main-content {
-    margin-left: 270px;
+    margin-left: 280px; /* Slightly increased for better spacing */
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
+    padding: 40px 30px;
+    background-color: #f9f7c9;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
+/* Container Styling */
 .container {
-    width: 80%;
-    max-width: 800px;
-    padding: 50px;
-    text-align: left; /* Align text to the left */
+    width: 90%;
+    max-width: 900px;
+    padding: 40px;
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 16px; /* Smoother rounded corners */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); /* Softer shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 30px;
 }
 
+.container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12); /* Enhanced hover effect */
+}
+
+/* Headings */
 h1 {
     color: #ff6f61;
-    font-size: 36px;
-    text-align: left; /* Ensure headings are aligned to the left */
-    margin-bottom: 20px;
+    font-size: 2.5rem; /* Better scalability */
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    text-align: left;
+    position: relative;
+    padding-bottom: 10px;
 }
 
-.content {
-    margin-top: 40px;
-    padding: 20px;
-    background-color: #fff3cd;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    text-align: left; /* Align content inside to the left */
+h1::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: #ffcc5c; /* Accent underline */
+    border-radius: 2px;
 }
 
-.content h2 {
+h2 {
     color: #333;
-    font-size: 24px;
-    margin-bottom: 10px;
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+    font-weight: 600;
 }
 
+/* Content Blocks */
+.content {
+    margin-top: 30px;
+    padding: 30px;
+    background-color: #fff9e6; /* Warmer off-white */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border-left: 4px solid #ffcc5c; /* Accent border */
+}
+
+.content:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Lists */
 .container ul {
     list-style-type: none;
     padding: 0;
+    margin: 20px 0;
 }
 
 .container li {
-    background: #f9f9f9;
-    padding: 10px;
-    border-radius: 5px;
-    margin: 5px 0;
-    border-left: 3px solid #4CAF50;
+    background: #f8f8f8;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+    border-left: 4px solid #4CAF50;
+    transition: all 0.2s ease;
 }
 
+.container li:hover {
+    background: #f0f0f0;
+    transform: translateX(5px); /* Subtle hover movement */
+}
+
+/* Buttons */
 button {
     background-color: #ff6f61;
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
+    padding: 12px 24px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
-    transition: background 0.3s ease;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(255, 111, 97, 0.3); /* Matching shadow */
 }
 
 button:hover {
     background-color: #ff5733;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 87, 51, 0.4);
 }
 
 .footer {
@@ -128,4 +178,32 @@ button:hover {
     text-align: center;
     width: 100%;
     margin-top: auto;
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .container {
+        width: 95%;
+        padding: 30px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 500px) {
+    .content {
+        padding: 20px;
+    }
+
+    button {
+        width: 100%; /* Full-width buttons on mobile */
+    }
 }

@@ -2,8 +2,12 @@
 session_start();
 include 'db.php';
 
-// Fetch user details
-$_SESSION['user_id'] = 1; // Dummy user ID (replace with actual session value)
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: children_login.php");
+    exit();
+}
+
 $user_id = $_SESSION['user_id'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

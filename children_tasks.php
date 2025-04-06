@@ -1,45 +1,51 @@
 <?php
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "kids_saving";
+session_start();
+include 'db.php';
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+$user_id = $_SESSION['user_id'];
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Mark task as completed if "Done" button is clicked
+// Mark task as completed
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['task_id'])) {
     $task_id = intval($_POST['task_id']);
-    $update_sql = "UPDATE tasks SET status='completed', completed_at=NOW() WHERE id=$task_id";
-    $conn->query($update_sql);
+    $update_sql = "UPDATE tasks SET status='completed', completed_at=NOW() WHERE id=? AND assigned_to=?";
+    $stmt = $conn->prepare($update_sql);
+    $stmt->bind_param("ii", $task_id, $user_id);
+    $stmt->execute();
 }
 
-// Fetch undone (pending) tasks
-$pending_sql = "SELECT * FROM tasks WHERE status='pending'";
-$pending_result = $conn->query($pending_sql);
+// Fetch pending tasks assigned to this child
+$pending_sql = "SELECT * FROM tasks WHERE assigned_to=? AND status='pending'";
+$stmt = $conn->prepare($pending_sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$pending_result = $stmt->get_result();
 
-// Fetch latest 5 completed tasks
-$completed_sql = "SELECT * FROM tasks WHERE status='completed' ORDER BY completed_at DESC LIMIT 5";
-$completed_result = $conn->query($completed_sql);
+// Fetch completed tasks (awaiting approval)
+$completed_sql = "SELECT * FROM tasks WHERE assigned_to=? AND status='completed' ORDER BY completed_at DESC";
+$stmt = $conn->prepare($completed_sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$completed_result = $stmt->get_result();
 
-$conn->close();
+// Fetch approved tasks (with earnings)
+$approved_sql = "SELECT t.*, e.amount FROM tasks t 
+                LEFT JOIN earnings e ON e.task_id = t.id 
+                WHERE t.assigned_to=? AND t.status='approved' 
+                ORDER BY t.completed_at DESC LIMIT 5";
+$stmt = $conn->prepare($approved_sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$approved_result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KidsSaving Tasks</title>
     <link rel="stylesheet" href="children_tasks.css">
 </head>
-
 <body>
     <aside class="sidebar">
         <h2>🎮 KidsSaving</h2>
@@ -64,60 +70,78 @@ $conn->close();
 
             <!-- Pending Tasks -->
             <div class="task-list">
-                <h2>📌 Your Pending Tasks</h2>
+                <h2>📌 Tasks To Do</h2>
+                <?php if ($pending_result->num_rows > 0): ?>
                 <table>
                     <tr>
                         <th>Task</th>
+                        <th>Value</th>
                         <th>Action</th>
                     </tr>
-                    <?php if ($pending_result->num_rows > 0): ?>
                     <?php while ($task = $pending_result->fetch_assoc()): ?>
                     <tr>
                         <td><?= htmlspecialchars($task['task_name']) ?></td>
+                        <td>$<?= number_format($task['task_value'], 2) ?></td>
                         <td>
                             <form method="POST">
                                 <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
-                                <button class="approve-btn" type="submit">Done</button>
+                                <button class="complete-btn" type="submit">Mark as Done</button>
                             </form>
                         </td>
                     </tr>
                     <?php endwhile; ?>
-                    <?php else: ?>
-                    <tr>
-                        <td colspan="2">No pending tasks available.</td>
-                    </tr>
-                    <?php endif; ?>
                 </table>
+                <?php else: ?>
+                <p>No pending tasks available.</p>
+                <?php endif; ?>
             </div>
 
-            <!-- Recent Completed Tasks -->
-            <div class="task-list completed-tasks">
-                <h2>✅ Recently Completed Tasks</h2>
+            <!-- Completed Tasks (Waiting Approval) -->
+            <div class="task-list">
+                <h2>⏳ Waiting for Approval</h2>
+                <?php if ($completed_result->num_rows > 0): ?>
                 <table>
                     <tr>
                         <th>Task</th>
-                        <th>Completed At</th>
+                        <th>Value</th>
+                        <th>Completed On</th>
                     </tr>
-                    <?php if ($completed_result->num_rows > 0): ?>
                     <?php while ($task = $completed_result->fetch_assoc()): ?>
                     <tr>
                         <td><?= htmlspecialchars($task['task_name']) ?></td>
-                        <td><?= date("F j, Y, g:i a", strtotime($task['completed_at'])) ?></td>
+                        <td>$<?= number_format($task['task_value'], 2) ?></td>
+                        <td><?= date("M j, Y", strtotime($task['completed_at'])) ?></td>
                     </tr>
                     <?php endwhile; ?>
-                    <?php else: ?>
-                    <tr>
-                        <td colspan="2">No completed tasks yet.</td>
-                    </tr>
-                    <?php endif; ?>
                 </table>
+                <?php else: ?>
+                <p>No tasks waiting for approval.</p>
+                <?php endif; ?>
+            </div>
+
+            <!-- Approved Tasks -->
+            <div class="task-list">
+                <h2>✅ Approved Tasks</h2>
+                <?php if ($approved_result->num_rows > 0): ?>
+                <table>
+                    <tr>
+                        <th>Task</th>
+                        <th>Earned</th>
+                        <th>Approved On</th>
+                    </tr>
+                    <?php while ($task = $approved_result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($task['task_name']) ?></td>
+                        <td>$<?= number_format($task['amount'], 2) ?></td>
+                        <td><?= date("M j, Y", strtotime($task['completed_at'])) ?></td>
+                    </tr>
+                    <?php endwhile; ?>
+                </table>
+                <?php else: ?>
+                <p>No approved tasks yet.</p>
+                <?php endif; ?>
             </div>
         </div>
     </div>
-
-    <footer class="footer">
-        <p>&copy; 2025 KidsSaving. Learn, Save, and Have Fun!</p>
-    </footer>
 </body>
-
 </html>

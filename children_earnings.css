@@ -52,100 +52,197 @@ body {
 }
 
 
+/* ===== Main Layout ===== */
 .main-content {
     margin-left: 270px;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-}
-
-.container {
-    padding: 50px;
+    padding: 30px 40px;
+    min-height: 100vh;
+    background-color: #f9f7c9;
+    box-sizing: border-box;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px;
     flex-grow: 1;
     text-align: center;
-}
-/* Earnings Table Styles */
-.earnings-table {
+  }
+  
+  /* ===== Earnings Table ===== */
+  .earnings-table {
     margin-top: 40px;
-    padding: 20px;
-    background-color: #fff3cd;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.earnings-table h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-table {
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease;
+  }
+  
+  .earnings-table:hover {
+    transform: translateY(-3px);
+  }
+  
+  .earnings-table h2 {
+    font-size: 28px;
+    margin-bottom: 25px;
+    color: #ff6f61;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .earnings-table h2::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 0;
     width: 100%;
-    border-collapse: collapse;
-}
-
-table th, table td {
-    padding: 10px;
-    text-align: left;
+    height: 3px;
+    background: #ffcc5c;
+    border-radius: 3px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 25px 0;
+  }
+  
+  table th, table td {
+    padding: 15px;
+    text-align: center;
     font-size: 18px;
-    border-bottom: 1px solid #ddd;
-}
-
-table th {
-    background-color: #ffcc5c;
-}
-
-table tr:nth-child(even) {
-    background-color: #f9f7c9;
-}
-
-table td {
+    border-bottom: 1px solid #eee;
+  }
+  
+  table th {
+    background-color: #ff6f61;
+    color: white;
     font-weight: bold;
-}
-
-/* Earnings Goals Section */
-.earnings-goals {
+    position: sticky;
+    top: 0;
+  }
+  
+  table tr:nth-child(even) {
+    background-color: #fff9e6;
+  }
+  
+  table tr:hover {
+    background-color: #ffeedd;
+    transform: scale(1.01);
+    transition: all 0.2s ease;
+  }
+  
+  table td {
+    font-weight: bold;
+    color: #555;
+  }
+  
+  /* ===== Earnings Goals ===== */
+  .earnings-goals {
     margin-top: 40px;
-    padding: 20px;
-    background-color: #fff3cd;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.earnings-goals h2 {
-    font-size: 24px;
-}
-
-.goal {
-    margin-bottom: 20px;
-    font-size: 18px;
-}
-
-.goal p {
-    margin: 5px 0;
-}
-
-progress {
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+  }
+  
+  .earnings-goals h2 {
+    font-size: 28px;
+    margin-bottom: 25px;
+    color: #ff6f61;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .earnings-goals h2::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 0;
     width: 100%;
-    height: 20px;
-    margin-top: 10px;
-    border-radius: 5px;
-}
-
-.create-goal-btn {
+    height: 3px;
+    background: #ffcc5c;
+    border-radius: 3px;
+  }
+  
+  .goal {
+    margin-bottom: 25px;
+    padding: 20px;
+    background-color: #fff9e6;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .goal:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .goal p {
+    margin: 8px 0;
+    font-size: 18px;
+    color: #555;
+  }
+  
+  .goal .goal-title {
+    font-weight: bold;
+    color: #ff6f61;
+    font-size: 20px;
+  }
+  
+  progress {
+    width: 100%;
+    height: 25px;
+    margin-top: 15px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: none;
+  }
+  
+  progress::-webkit-progress-bar {
+    background-color: #f0f0f0;
+    border-radius: 12px;
+  }
+  
+  progress::-webkit-progress-value {
+    background-color: #ff6f61;
+    border-radius: 12px;
+    transition: width 0.5s ease;
+  }
+  
+  progress::-moz-progress-bar {
+    background-color: #ff6f61;
+    border-radius: 12px;
+  }
+  
+  /* ===== Buttons ===== */
+  .create-goal-btn {
     margin-top: 30px;
-    padding: 10px 20px;
+    padding: 12px 30px;
     background-color: #ff6f61;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 18px;
-}
-
-.create-goal-btn:hover {
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(255, 111, 97, 0.3);
+  }
+  
+  .create-goal-btn:hover {
     background-color: #ff5733;
-}
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 87, 51, 0.4);
+  }
 
+    
 .footer {
     padding: 20px;
     background-color: #ff6f61;
@@ -154,3 +251,25 @@ progress {
     text-align: center;
     width: 100%;
 }
+  
+  /* ===== Responsive Design ===== */
+  @media (max-width: 768px) {
+    .main-content {
+      margin-left: 0;
+      padding: 20px;
+    }
+    
+    .container {
+      padding: 20px;
+    }
+    
+    table th, table td {
+      padding: 10px;
+      font-size: 16px;
+    }
+    
+    .goal {
+      padding: 15px;
+    }
+  }
+

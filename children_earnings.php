@@ -5,7 +5,7 @@ include 'db.php';
 $user_id = $_SESSION['user_id'];
 
 // Ensure the user has an entry in the earnings table
-$init_query = "INSERT INTO user_earnings (user_id, total_earnings) SELECT ?, 0.00 WHERE NOT EXISTS (SELECT 1 FROM user_earnings WHERE user_id = ?);";
+$init_query = "INSERT INTO user_earnings (user_id, total_earnings) SELECT ?, 0.00 WHERE NOT EXISTS (SELECT 1 FROM user_earnings WHERE user_id = ?)";
 $stmt = $conn->prepare($init_query);
 $stmt->bind_param("ii", $user_id, $user_id);
 $stmt->execute();
@@ -18,14 +18,14 @@ $stmt->execute();
 $result = $stmt->get_result();
 $total_earnings = $result->fetch_assoc()['total_earnings'] ?? 0.00;
 
-// Fetch earnings details
-$earnings_query = "SELECT source, earned_date, amount FROM earnings WHERE user_id = ? ORDER BY earned_date DESC LIMIT 5";
+// Fetch earnings details (both from tasks and allowances)
+$earnings_query = "SELECT source, earned_date, amount FROM earnings WHERE user_id = ? ORDER BY earned_date DESC";
 $stmt = $conn->prepare($earnings_query);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $earnings_result = $stmt->get_result();
 
-// Fetch current savings goal (only one active goal)
+// Fetch current savings goal
 $goal_query = "SELECT * FROM savings_goals WHERE user_id = ? ORDER BY created_at DESC LIMIT 1";
 $stmt = $conn->prepare($goal_query);
 $stmt->bind_param("i", $user_id);
@@ -36,14 +36,28 @@ $current_goal = $goal_result->fetch_assoc();
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KidsSaving Earnings</title>
     <link rel="stylesheet" href="children_earnings.css">
+    <style>
+        .progress-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }
+    </style>
 </head>
-
 <body>
     <aside class="sidebar">
         <h2>🎮 KidsSaving</h2>
@@ -68,47 +82,54 @@ $current_goal = $goal_result->fetch_assoc();
 
             <!-- Earnings Table -->
             <div class="earnings-table">
-                <h2>Your Earnings</h2>
+                <h2>Your Earnings History</h2>
+                <?php if ($earnings_result->num_rows > 0): ?>
                 <table>
                     <thead>
                         <tr>
-                            <th>Source of Earning</th>
-                            <th>Earned Date</th>
-                            <th>Earned Amount</th>
+                            <th>Source</th>
+                            <th>Date</th>
+                            <th>Amount</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $earnings_result->fetch_assoc()) { ?>
+                        <?php while ($row = $earnings_result->fetch_assoc()): ?>
                         <tr>
-                            <td><?php echo $row['source']; ?></td>
-                            <td><?php echo $row['earned_date']; ?></td>
-                            <td>$<?php echo number_format($row['amount'], 2); ?></td>
+                            <td><?= htmlspecialchars($row['source']) ?></td>
+                            <td><?= $row['earned_date'] ?></td>
+                            <td>$<?= number_format($row['amount'], 2) ?></td>
                         </tr>
-                        <?php } ?>
+                        <?php endwhile; ?>
                     </tbody>
                 </table>
+                <?php else: ?>
+                <p>No earnings recorded yet.</p>
+                <?php endif; ?>
             </div>
 
             <!-- Savings Goals Section -->
             <div class="earnings-goals">
                 <h2>Your Savings Goal</h2>
-                <div id="goal-container">
-                    <?php if ($current_goal) { ?>
-                    <div class="goal">
-                        <p>Goal: <?php echo htmlspecialchars($current_goal['goal_name']); ?> 🏆</p>
-                        <p>Target Amount: $<?php echo number_format($current_goal['target_amount'], 2); ?></p>
-                        <p>Amount Saved: $<?php echo number_format($current_goal['amount_saved'], 2); ?></p>
-                        <progress value="<?php echo $current_goal['amount_saved']; ?>"
-                            max="<?php echo $current_goal['target_amount']; ?>"></progress>
+                <?php if ($current_goal): ?>
+                <div class="goal">
+                    <h3><?= htmlspecialchars($current_goal['goal_name']) ?></h3>
+                    <p>Target: $<?= number_format($current_goal['target_amount'], 2) ?></p>
+                    <p>Saved: $<?= number_format($current_goal['amount_saved'], 2) ?></p>
+                    <div class="progress-container">
+                        <?php 
+                        $percentage = ($current_goal['amount_saved'] / $current_goal['target_amount']) * 100;
+                        $percentage = min(100, max(0, $percentage)); // Ensure between 0-100
+                        ?>
+                        <div class="progress-bar" style="width: <?= $percentage ?>%">
+                            <?= round($percentage) ?>%
+                        </div>
                     </div>
-                    <?php } else { ?>
-                    <p>No active savings goal. Create one below!</p>
-                    <button class="create-goal-btn" id="show-goal-form">Create New Goal</button>
-                    <?php } ?>
                 </div>
+                <?php else: ?>
+                <p>No active savings goal. Create one in your account settings!</p>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 </body>
-
 </html>

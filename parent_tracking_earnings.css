@@ -51,106 +51,159 @@ body {
     background-color: #ff5733;
 }
 
-
+/* Main Content Styling */
 .main-content {
     margin-left: 270px;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    background-color: #f9f7c9;
+    padding: 20px;
 }
 
 .container {
-    padding: 50px;
+    padding: 30px;
     flex-grow: 1;
     text-align: center;
-}
-/* Earnings Table Styles */
-.earnings-table {
-    margin-top: 40px;
-    padding: 20px;
-    background-color: #fff3cd;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    border: 3px dashed #ffcc5c;
 }
 
-.earnings-table h2 {
-    font-size: 24px;
+.container h1 {
+    color: #ff6f61;
+    font-size: 2.5rem;
     margin-bottom: 20px;
+    text-shadow: 2px 2px 0px rgba(255, 111, 97, 0.2);
+}
+
+.container p {
+    color: #5a5a5a;
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+/* Enhanced Table Styling */
+.overview {
+    margin-top: 40px;
+    padding: 25px;
+    background-color: #fff9e6;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 2px solid #ffcc5c;
+}
+
+.overview h2 {
+    color: #ff6f61;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    position: relative;
+    display: inline-block;
+}
+
+.overview h2:after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 25%;
+    width: 50%;
+    height: 4px;
+    background-color: #ffcc5c;
+    border-radius: 2px;
 }
 
 table {
     width: 100%;
-    border-collapse: collapse;
-}
-
-table th, table td {
-    padding: 10px;
-    text-align: left;
-    font-size: 18px;
-    border-bottom: 1px solid #ddd;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 20px 0;
+    overflow: hidden;
+    border-radius: 12px;
 }
 
 table th {
-    background-color: #ffcc5c;
-}
-
-table tr:nth-child(even) {
-    background-color: #f9f7c9;
+    background-color: #ff6f61;
+    color: white;
+    padding: 15px;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 table td {
+    padding: 12px 15px;
+    font-size: 1rem;
+    border-bottom: 1px solid #ffcc5c;
+    transition: all 0.3s ease;
+}
+
+table tr:not(:first-child):hover td {
+    background-color: #fff3cd;
+    transform: scale(1.01);
+}
+
+table tr:nth-child(even) {
+    background-color: #fff9e6;
+}
+
+/* Currency Highlight */
+table td:nth-child(4), 
+table td:nth-child(5) {
+    color: #2e8b57;
     font-weight: bold;
 }
 
-/* Earnings Goals Section */
-.earnings-goals {
-    margin-top: 40px;
-    padding: 20px;
-    background-color: #fff3cd;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        padding-top: 70px;
+    }
+    
+    .container {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+    }
 }
 
-.earnings-goals h2 {
-    font-size: 24px;
+/* Animation for Fun */
+@keyframes bounceIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
 }
 
-.goal {
-    margin-bottom: 20px;
-    font-size: 18px;
+.container {
+    animation: bounceIn 0.6s ease-out;
 }
 
-.goal p {
-    margin: 5px 0;
-}
-
-progress {
-    width: 100%;
-    height: 20px;
-    margin-top: 10px;
-    border-radius: 5px;
-}
-
+/* Hover Effects */
+.sidebar ul li a, 
 .create-goal-btn {
-    margin-top: 30px;
-    padding: 10px 20px;
-    background-color: #ff6f61;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 18px;
+    transition: all 0.3s ease;
+    transform: translateY(0);
 }
 
+.sidebar ul li a:hover, 
 .create-goal-btn:hover {
-    background-color: #ff5733;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Footer Enhancement */
 .footer {
     padding: 20px;
     background-color: #ff6f61;
-    color: #fff;
-    font-size: 16px;
+    color: white;
+    font-size: 1rem;
     text-align: center;
-    width: 100%;
+    margin-top: auto;
+    border-top: 3px solid #ffcc5c;
 }

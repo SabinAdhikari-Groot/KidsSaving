@@ -2,10 +2,28 @@
 session_start();
 include 'db.php';
 
-// Dummy user data (replace with session data)
-$_SESSION['user_id'] = 3; // Assume child ID is 3
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: children_login.php");
+    exit();
+}
+
 $child_id = $_SESSION['user_id'];
-$parent_id = 1; // Assume parent ID is 1
+
+// Get the parent ID this child is connected to
+$parent_id = null;
+$stmt = $conn->prepare("SELECT parent_id FROM parent_children_connection WHERE child_id = ?");
+$stmt->bind_param("i", $child_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $parent_id = $row['parent_id'];
+} else {
+    // No parent connected - handle this case appropriately
+    die("No parent connected to this account.");
+}
 
 // Handle AJAX requests
 if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
@@ -51,7 +69,6 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     <title>KidsSaving Chat</title>
     <link rel="stylesheet" href="children_chat.css">
     <style>
-        /* Additional styles for dynamic messages */
         .message-time {
             font-size: 12px;
             color: #888;
@@ -92,7 +109,6 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
             <p>Communicate with your parents and stay up-to-date with reminders, goals, and more!</p>
 
             <div class="chat-box" id="chatBox">
-                <!-- Messages will be loaded here via JavaScript -->
                 <div class="typing-indicator" id="typingIndicator">Parent is typing...</div>
             </div>
 
@@ -115,15 +131,14 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
             const chatForm = document.getElementById('chatForm');
             const messageInput = document.getElementById('messageInput');
             const typingIndicator = document.getElementById('typingIndicator');
-            let lastMessageId = 0;
             
             // Load messages when page loads
             loadMessages();
             
             // Auto-refresh messages every 2 seconds
-            const refreshInterval = setInterval(loadMessages, 20000);
+            const refreshInterval = setInterval(loadMessages, 10000);
             
-            // Handle form submission with AJAX
+            // Handle form submission
             chatForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
@@ -146,8 +161,8 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        messageInput.value = ''; // Clear input
-                        loadMessages(); // Refresh messages
+                        messageInput.value = '';
+                        loadMessages();
                     }
                 })
                 .catch(error => {
@@ -158,12 +173,6 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                     chatForm.querySelector('button').disabled = false;
                     messageInput.focus();
                 });
-            });
-            
-            // Show typing indicator when user is typing
-            messageInput.addEventListener('input', function() {
-                // In a real app, you would send a "typing" event to the server
-                // For this demo, we'll just simulate it
             });
             
             // Function to load messages
@@ -178,7 +187,6 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                 })
                 .then(response => response.json())
                 .then(messages => {
-                    // Only update if there are new messages
                     if (messages.length > 0) {
                         chatBox.innerHTML = '<div class="typing-indicator" id="typingIndicator">Parent is typing...</div>';
                         

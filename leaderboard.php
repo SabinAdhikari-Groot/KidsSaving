@@ -2,9 +2,10 @@
 session_start();
 require_once 'db.php'; // Include database connection
 
-// Check if the user is logged in
+// Check if the user is logged in and redirect if not
 if (!isset($_SESSION['user_id'])) {
-    die("User not logged in.");
+    header("Location: children_login.php");
+    exit();
 }
 
 $user_id = $_SESSION['user_id'];
@@ -20,9 +21,9 @@ $sql = "SELECT e.user_id,
         ORDER BY e.current_earning DESC 
         LIMIT 5";  // Fetch only top 5 users
 
-
-
-$result = $conn->query($sql);
+$stmt = $conn->prepare($sql);
+$stmt->execute();
+$result = $stmt->get_result();
 
 $leaderboard = [];
 $user_rank = null;
@@ -51,6 +52,8 @@ while ($row = $result->fetch_assoc()) {
     $rank++;
 }
 
+// Close statement
+$stmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -100,12 +103,12 @@ while ($row = $result->fetch_assoc()) {
                     </thead>
                     <tbody>
                         <?php foreach ($leaderboard as $row): ?>
-                        <tr <?= ($row['user_id'] == $user_id) ? 'style="font-weight:bold;color:green;"' : '' ?>>
-                            <td><?= $row['rank'] ?></td>
+                        <tr <?= ($row['user_id'] == $user_id) ? 'class="highlight-user"' : '' ?>>
+                            <td><?= htmlspecialchars($row['rank']) ?></td>
                             <td><?= htmlspecialchars($row['child_name']) ?></td>
-                            <td>$<?= number_format($row['saved_amount'], 2) ?></td>
-                            <td><?= $row['tasks_completed'] ?></td>
-                            <td><?= $row['quizzes_completed'] ?></td>
+                            <td>$<?= htmlspecialchars(number_format($row['saved_amount'], 2)) ?></td>
+                            <td><?= htmlspecialchars($row['tasks_completed']) ?></td>
+                            <td><?= htmlspecialchars($row['quizzes_completed']) ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -116,10 +119,10 @@ while ($row = $result->fetch_assoc()) {
             <div class="your-rank">
                 <h2>Your Current Rank</h2>
                 <?php if ($user_rank): ?>
-                <p>Rank: <?= $user_rank['rank'] ?></p>
-                <p>Saved Amount: $<?= number_format($user_rank['saved_amount'], 2) ?></p>
-                <p>Tasks Completed: <?= $user_rank['tasks_completed'] ?></p>
-                <p>Quizzes Completed: <?= $user_rank['quizzes_completed'] ?></p>
+                <p>Rank: <?= htmlspecialchars($user_rank['rank']) ?></p>
+                <p>Saved Amount: $<?= htmlspecialchars(number_format($user_rank['saved_amount'], 2)) ?></p>
+                <p>Tasks Completed: <?= htmlspecialchars($user_rank['tasks_completed']) ?></p>
+                <p>Quizzes Completed: <?= htmlspecialchars($user_rank['quizzes_completed']) ?></p>
                 <?php else: ?>
                 <p>You are not ranked yet. Start saving to appear on the leaderboard!</p>
                 <?php endif; ?>

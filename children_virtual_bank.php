@@ -10,22 +10,28 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch the current bank balance
+// Check if bank account exists, if not create one
 $sql = "SELECT balance FROM bank_accounts WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows > 0) {
+if ($result->num_rows === 0) {
+    // Create new bank account with 0 balance
+    $sql = "INSERT INTO bank_accounts (id, balance) VALUES (?, 0)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    
+    // Set initial balance to 0
+    $balance = 0;
+} else {
     $bank_account = $result->fetch_assoc();
     $balance = $bank_account['balance'];
-} else {
-    echo "<script>alert('No bank account found for this user.');</script>";
-    exit();
 }
 
-// Fetch total earnings from user_earning table
+// Fetch total earnings from user_earnings table
 $sql = "SELECT total_earnings FROM user_earnings WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -38,7 +44,7 @@ if ($result->num_rows > 0) {
 } else {
     // If no record exists, create one with 0 earnings
     $total_earnings = 0;
-    $sql = "INSERT INTO user_earning (user_id, total_earnings) VALUES (?, 0)";
+    $sql = "INSERT INTO user_earnings (user_id, total_earnings) VALUES (?, 0)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
@@ -46,24 +52,29 @@ if ($result->num_rows > 0) {
 
 // Handle deposit action
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['deposit-amount'])) {
-    $deposit_amount = $_POST['deposit-amount'];
+    $deposit_amount = floatval($_POST['deposit-amount']);
 
-    if ($deposit_amount > $total_earnings) {
+    if ($deposit_amount <= 0) {
+        echo "<script>alert('Deposit amount must be positive!');</script>";
+    } elseif ($deposit_amount > $total_earnings) {
         echo "<script>alert('You do not have sufficient funds in earnings!');</script>";
     } else {
         $new_balance = $balance + $deposit_amount;
         $new_total_earnings = $total_earnings - $deposit_amount;
 
+        // Update bank account
         $sql = "UPDATE bank_accounts SET balance = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("di", $new_balance, $user_id);
         $stmt->execute();
 
+        // Update earnings
         $sql = "UPDATE user_earnings SET total_earnings = ? WHERE user_id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("di", $new_total_earnings, $user_id);
         $stmt->execute();
 
+        // Refresh page to show updated values
         header('Location: children_virtual_bank.php');
         exit();
     }
@@ -71,26 +82,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['deposit-amount'])) {
 
 // Handle withdraw action
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['withdraw-amount'])) {
-    $withdraw_amount = $_POST['withdraw-amount'];
+    $withdraw_amount = floatval($_POST['withdraw-amount']);
 
-    if ($balance >= $withdraw_amount) {
+    if ($withdraw_amount <= 0) {
+        echo "<script>alert('Withdrawal amount must be positive!');</script>";
+    } elseif ($balance < $withdraw_amount) {
+        echo "<script>alert('Insufficient balance for withdrawal!');</script>";
+    } else {
         $new_balance = $balance - $withdraw_amount;
         $new_total_earnings = $total_earnings + $withdraw_amount;
 
+        // Update bank account
         $sql = "UPDATE bank_accounts SET balance = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("di", $new_balance, $user_id);
         $stmt->execute();
 
+        // Update earnings
         $sql = "UPDATE user_earnings SET total_earnings = ? WHERE user_id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("di", $new_total_earnings, $user_id);
         $stmt->execute();
 
+        // Refresh page to show updated values
         header('Location: children_virtual_bank.php');
         exit();
-    } else {
-        echo "<script>alert('Insufficient balance for withdrawal!');</script>";
     }
 }
 ?>
@@ -136,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['withdraw-amount'])) {
                 <h2>Deposit Money</h2>
                 <form action="children_virtual_bank.php" method="POST">
                     <input type="number" id="deposit-amount" name="deposit-amount" placeholder="Amount to Deposit"
-                        min="1" required>
+                        min="0.01" step="0.01" required>
                     <button type="submit" class="transaction-btn">Deposit</button>
                 </form>
             </div>
@@ -145,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['withdraw-amount'])) {
                 <h2>Withdraw Money</h2>
                 <form action="children_virtual_bank.php" method="POST">
                     <input type="number" id="withdraw-amount" name="withdraw-amount" placeholder="Amount to Withdraw"
-                        min="1" required>
+                        min="0.01" step="0.01" required>
                     <button type="submit" class="transaction-btn">Withdraw</button>
                 </form>
             </div>

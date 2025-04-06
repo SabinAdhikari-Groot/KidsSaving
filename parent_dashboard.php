@@ -2,8 +2,13 @@
 session_start();
 include("db.php"); // Database connection file
 
-// Assuming parent_id is stored in session after login
-$parent_id = $_SESSION['id'] ?? 3; // Defaulting to 3 for testing
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$parent_id = $_SESSION['user_id'];
 
 // Fetch children of the logged-in parent
 $sql = "SELECT u.id, u.first_name, u.last_name 
@@ -61,7 +66,7 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                         <?php
                         foreach ($children as $child) {
                             $child_id = $child['id'];
-                            $child_name = $child['first_name'] . ' ' . $child['last_name'];
+                            $child_name = htmlspecialchars($child['first_name'] . ' ' . $child['last_name']);
 
                             // Fetch completed tasks
                             $sql_completed = "SELECT COUNT(*) AS completed_tasks FROM tasks WHERE id = ? AND status = 'completed'";
@@ -77,26 +82,28 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             $stmt->execute();
                             $pending_tasks = $stmt->get_result()->fetch_assoc()['pending_tasks'] ?? 0;
 
-                            // Fetch total earnings
-                            // $sql_earnings = "SELECT SUM(amount) AS total_earnings FROM user_earnings WHERE user_id = ?";
-                            // $stmt = $conn->prepare($sql_earnings);
-                            // $stmt->bind_param("i", $child_id);
-                            // $stmt->execute();
-                            // $total_earnings = $stmt->get_result()->fetch_assoc()['total_earnings'] ?? 0;
+                            // Fetch total earnings from earnings table
+                            $sql_earnings = "SELECT SUM(amount) AS total_earnings FROM earnings WHERE user_id = ?";
+                            $stmt = $conn->prepare($sql_earnings);
+                            $stmt->bind_param("i", $child_id);
+                            $stmt->execute();
+                            $total_earnings_result = $stmt->get_result()->fetch_assoc();
+                            $total_earnings = $total_earnings_result['total_earnings'] ?? 0;
 
                             // Fetch savings in bank
-                            $sql_savings = "SELECT balance FROM bank_accounts WHERE account_id = ?";
+                            $sql_savings = "SELECT balance FROM bank_accounts WHERE id = ?";
                             $stmt = $conn->prepare($sql_savings);
                             $stmt->bind_param("i", $child_id);
                             $stmt->execute();
-                            $savings = $stmt->get_result()->fetch_assoc()['balance'] ?? 0;
+                            $savings_result = $stmt->get_result()->fetch_assoc();
+                            $savings = $savings_result['balance'] ?? 0;
 
                             echo "<tr>
                                     <td>$child_name</td>
                                     <td>$completed_tasks</td>
                                     <td>$pending_tasks</td>
-                                    <td>$14</td>
-                                    <td>$$savings</td>
+                                    <td>$" . number_format($total_earnings, 2) . "</td>
+                                    <td>$" . number_format($savings, 2) . "</td>
                                   </tr>";
                         }
                         ?>
