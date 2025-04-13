@@ -1,6 +1,8 @@
+@import url('base.css');
+
 body {
     font-family: 'Comic Sans MS', cursive, sans-serif;
-    background-color: #f9f7c9;
+    background-color: var(--background-light);
     margin: 0;
     padding: 0;
     display: flex;
@@ -9,11 +11,11 @@ body {
 }
 
 .sidebar {
-    width: 250px;
-    background-color: #ffcc5c;
-    padding: 5px;
+    width: 280px;
+    background: var(--gradient-primary);
+    padding: 10px 15px;
     height: 100vh;
-    color: #fff;
+    color: var(--text-light);
     text-align: center;
     position: fixed;
     left: 0;
@@ -21,156 +23,205 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: all 0.3s ease;
 }
 
 .sidebar h2 {
-    font-size: 16px;
+    font-size: 24px;
+    margin-bottom: 30px;
+    color: var(--text-light);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    width: 100%;
 }
 
 .sidebar ul {
     list-style: none;
     padding: 0;
     width: 100%;
+    margin-top: 20px;
 }
 
 .sidebar ul li {
-    margin: 10px 0;
+    margin: 8px 0;
 }
 
 .sidebar ul li a {
     text-decoration: none;
-    color: #fff;
+    color: var(--text-light);
     font-size: 16px;
-    display: block;
-    padding: 10px;
-    background-color: #ff6f61;
-    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-.sidebar ul li a:hover {
-    background-color: #ff5733;
+.sidebar ul li a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
 }
 
-/* Main Content Styling */
 .main-content {
-    margin-left: 270px;
-    flex-grow: 1;
+    margin-left: 280px;
+    padding: 2rem;
+    min-height: 100vh;
+    background-color: #1f2a48; /* Dark but softer than #1a2238 */
+    color: #f4f4f4; /* Lightened text for better contrast */
+    transition: margin-left 0.3s ease;
     display: flex;
     flex-direction: column;
-    background-color: #f9f7c9;
-    padding: 20px;
-}
-
-.container {
-    padding: 30px;
-    flex-grow: 1;
-    text-align: center;
-    background-color: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 20px;
-    border: 3px dashed #ffcc5c;
-}
-
-.container h1 {
-    color: #ff6f61;
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    text-shadow: 2px 2px 0px rgba(255, 111, 97, 0.2);
-}
-
-.container p {
-    color: #5a5a5a;
-    font-size: 1.2rem;
-    margin-bottom: 30px;
-}
-
-/* Enhanced Table Styling */
-.overview {
-    margin-top: 40px;
-    padding: 25px;
-    background-color: #fff9e6;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 2px solid #ffcc5c;
-}
-
-.overview h2 {
-    color: #ff6f61;
-    font-size: 1.8rem;
-    margin-bottom: 25px;
+    gap: 2rem;
     position: relative;
-    display: inline-block;
 }
 
-.overview h2:after {
-    content: "";
-    position: absolute;
-    bottom: -8px;
-    left: 25%;
-    width: 50%;
-    height: 4px;
-    background-color: #ffcc5c;
-    border-radius: 2px;
+/* Title enhancements inside main content */
+.main-content h1,
+.main-content h2 {
+    text-align: center;
+    color: #000000; /* Matches your highlight gold */
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.15);
 }
 
+/* Paragraph text styling for better readability */
+.main-content p {
+    color: #000000; /* Softer than white for less strain */
+    line-height: 1.7;
+}
+
+
+/* Earnings Summary Section */
+.earnings-summary {
+    background-color: rgba(157, 170, 242, 0.1);
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(157, 170, 242, 0.3);
+}
+
+.earnings-summary h2 {
+    color: #000000;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Recent Earnings Section */
+.recent-earnings {
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid rgba(157, 170, 242, 0.3);
+}
+
+.recent-earnings h2 {
+    color: #fdfdfd;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Table Styling */
 table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    margin: 20px 0;
+    margin-top: 1rem;
+    background-color: rgba(157, 170, 242, 0.1);
+    border-radius: 10px;
     overflow: hidden;
-    border-radius: 12px;
+    border: 1px solid rgba(157, 170, 242, 0.3);
 }
 
-table th {
-    background-color: #ff6f61;
-    color: white;
-    padding: 15px;
-    font-size: 1.1rem;
+th {
+    background-color: #9daaf2;
+    color: #f6f8ff;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
-table td {
-    padding: 12px 15px;
-    font-size: 1rem;
-    border-bottom: 1px solid #ffcc5c;
-    transition: all 0.3s ease;
+td {
+    padding: 1rem;
+    color: #000000;
+    border-bottom: 1px solid rgba(23, 21, 21, 0.2);
 }
 
-table tr:not(:first-child):hover td {
-    background-color: #fff3cd;
-    transform: scale(1.01);
-}
-
-table tr:nth-child(even) {
-    background-color: #fff9e6;
-}
-
-/* Currency Highlight */
-table td:nth-child(4), 
-table td:nth-child(5) {
-    color: #2e8b57;
-    font-weight: bold;
-}
-
-/* Responsive Adjustments */
+/* Responsive Design */
 @media (max-width: 768px) {
     .main-content {
         margin-left: 0;
-        padding-top: 70px;
+        padding: 1rem;
     }
-    
+
     .container {
-        margin: 10px;
-        padding: 15px;
+        padding: 1rem;
     }
-    
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    .earnings-summary,
+    .recent-earnings {
+        padding: 1rem;
+    }
+
     table {
         display: block;
         overflow-x: auto;
     }
+}
+
+/* Animation Effects */
+.container {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a2238;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #9daaf2;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ff6a3d;
 }
 
 /* Animation for Fun */

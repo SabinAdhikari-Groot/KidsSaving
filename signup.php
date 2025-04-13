@@ -5,6 +5,9 @@ session_start();
 // Include database connection
 require_once 'db.php'; // Assuming you have a db.php file for DB connection
 
+// Set header to JSON
+header('Content-Type: application/json');
+
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Retrieve and sanitize form data
@@ -17,56 +20,82 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $accountType = $_POST['account-type'];
     $terms = isset($_POST['terms']) ? 1 : 0;
 
-    // Initialize an error array
-    $errors = [];
+    // Initialize response array
+    $response = [
+        'success' => false,
+        'errors' => []
+    ];
+
+    // Check if email already exists
+    $checkEmail = $conn->prepare("SELECT id FROM users WHERE email = ?");
+    $checkEmail->bind_param("s", $email);
+    $checkEmail->execute();
+    $checkEmail->store_result();
+    
+    if ($checkEmail->num_rows > 0) {
+        $response['errors']['email'] = 'This email is already registered.';
+    }
 
     // Validate required fields
     if (empty($email)) {
-        $errors[] = 'Email is required.';
+        $response['errors']['email'] = 'Email is required.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $response['errors']['email'] = 'Please enter a valid email address.';
     }
+
     if (empty($password)) {
-        $errors[] = 'Password is required.';
+        $response['errors']['password'] = 'Password is required.';
+    } elseif (strlen($password) < 8) {
+        $response['errors']['password'] = 'Password must be at least 8 characters long.';
     }
+
     if ($password !== $confirmPassword) {
-        $errors[] = 'Passwords do not match.';
+        $response['errors']['confirm-password'] = 'Passwords do not match.';
     }
+
     if (empty($firstName)) {
-        $errors[] = 'First name is required.';
+        $response['errors']['first-name'] = 'First name is required.';
+    } elseif (strlen($firstName) < 2) {
+        $response['errors']['first-name'] = 'First name must be at least 2 characters long.';
     }
+
     if (empty($lastName)) {
-        $errors[] = 'Last name is required.';
+        $response['errors']['last-name'] = 'Last name is required.';
+    } elseif (strlen($lastName) < 2) {
+        $response['errors']['last-name'] = 'Last name must be at least 2 characters long.';
     }
+
     if (empty($dob)) {
-        $errors[] = 'Date of birth is required.';
+        $response['errors']['dob'] = 'Date of birth is required.';
     }
+
     if (empty($accountType)) {
-        $errors[] = 'Account type is required.';
+        $response['errors']['account-type'] = 'Account type is required.';
     }
+
     if ($terms !== 1) {
-        $errors[] = 'You must agree to the terms and services.';
+        $response['errors']['terms'] = 'You must agree to the terms and services.';
     }
 
-    // If there are any errors, redirect back with the error messages
-    if (!empty($errors)) {
-        $_SESSION['errors'] = $errors;
-        header('Location: signup.php'); // Redirect back to the signup page
-        exit();
+    // If there are no errors, proceed with registration
+    if (empty($response['errors'])) {
+        // Hash the password
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        // Insert data into the database
+        $stmt = $conn->prepare("INSERT INTO users (email, password, first_name, last_name, dob, account_type) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssss", $email, $hashedPassword, $firstName, $lastName, $dob, $accountType);
+
+        if ($stmt->execute()) {
+            $response['success'] = true;
+            $response['message'] = 'Sign up successful. You can now log in.';
+            $response['redirect'] = 'login.html';
+        } else {
+            $response['errors']['general'] = 'Something went wrong. Please try again.';
+        }
     }
 
-    // Hash the password
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-    // Insert data into the database (assuming you have a `users` table)
-    $stmt = $conn->prepare("INSERT INTO users (email, password, first_name, last_name, dob, account_type) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssss", $email, $hashedPassword, $firstName, $lastName, $dob, $accountType);
-
-    if ($stmt->execute()) {
-        $_SESSION['success'] = 'Sign up successful. You can now log in.';
-        header('Location: login.html'); // Redirect to login page after successful sign-up
-        exit();
-    } else {
-        $_SESSION['errors'] = ['Something went wrong. Please try again.'];
-        header('Location: signup.html'); // Redirect back if there's an error
-        exit();
-    }
+    // Send JSON response
+    echo json_encode($response);
+    exit();
 }

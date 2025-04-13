@@ -10,16 +10,15 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch leaderboard data sorted by savings (current_earning)
-$sql = "SELECT e.user_id, 
-               CONCAT(u.first_name, ' ', u.last_name) AS child_name, 
-               e.current_earning, 
-               e.quiz_completed, 
-               e.notes_completed 
-        FROM children_earnings e 
-        JOIN users u ON u.id = e.user_id 
-        ORDER BY e.current_earning DESC 
-        LIMIT 5";  // Fetch only top 5 users
+// Fetch leaderboard data sorted by total earnings
+$sql = "SELECT u.id as user_id,
+               CONCAT(u.first_name, ' ', u.last_name) AS child_name,
+               SUM(e.amount) as total_earnings
+        FROM users u
+        LEFT JOIN earnings e ON u.id = e.user_id
+        GROUP BY u.id, u.first_name, u.last_name
+        ORDER BY total_earnings DESC
+        LIMIT 5";
 
 $stmt = $conn->prepare($sql);
 $stmt->execute();
@@ -34,9 +33,7 @@ while ($row = $result->fetch_assoc()) {
     $leaderboard[] = [
         'rank' => $rank,
         'child_name' => $row['child_name'],
-        'saved_amount' => $row['current_earning'],
-        'quizzes_completed' => $row['quiz_completed'],
-        'tasks_completed' => $row['notes_completed'],
+        'saved_amount' => $row['total_earnings'] ?? 0,
         'user_id' => $row['user_id']
     ];
 
@@ -44,9 +41,7 @@ while ($row = $result->fetch_assoc()) {
     if ($row['user_id'] == $user_id) {
         $user_rank = [
             'rank' => $rank,
-            'saved_amount' => $row['current_earning'],
-            'tasks_completed' => $row['notes_completed'],
-            'quizzes_completed' => $row['quiz_completed']
+            'saved_amount' => $row['total_earnings'] ?? 0
         ];
     }
     $rank++;
@@ -86,7 +81,7 @@ $stmt->close();
     <div class="main-content">
         <div class="container">
             <h1>🏆 KidsSaving Leaderboard</h1>
-            <p>See how you rank against other kids based on your savings and progress!</p>
+            <p>See how you rank against other kids based on your total savings!</p>
 
             <!-- Leaderboard Table -->
             <div class="leaderboard-table">
@@ -96,9 +91,7 @@ $stmt->close();
                         <tr>
                             <th>Rank</th>
                             <th>Child Name</th>
-                            <th>Saved Amount</th>
-                            <th>Tasks Completed</th>
-                            <th>Quizzes Completed</th>
+                            <th>Total Savings</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -107,8 +100,6 @@ $stmt->close();
                             <td><?= htmlspecialchars($row['rank']) ?></td>
                             <td><?= htmlspecialchars($row['child_name']) ?></td>
                             <td>$<?= htmlspecialchars(number_format($row['saved_amount'], 2)) ?></td>
-                            <td><?= htmlspecialchars($row['tasks_completed']) ?></td>
-                            <td><?= htmlspecialchars($row['quizzes_completed']) ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -120,9 +111,7 @@ $stmt->close();
                 <h2>Your Current Rank</h2>
                 <?php if ($user_rank): ?>
                 <p>Rank: <?= htmlspecialchars($user_rank['rank']) ?></p>
-                <p>Saved Amount: $<?= htmlspecialchars(number_format($user_rank['saved_amount'], 2)) ?></p>
-                <p>Tasks Completed: <?= htmlspecialchars($user_rank['tasks_completed']) ?></p>
-                <p>Quizzes Completed: <?= htmlspecialchars($user_rank['quizzes_completed']) ?></p>
+                <p>Total Savings: $<?= htmlspecialchars(number_format($user_rank['saved_amount'], 2)) ?></p>
                 <?php else: ?>
                 <p>You are not ranked yet. Start saving to appear on the leaderboard!</p>
                 <?php endif; ?>

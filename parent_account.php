@@ -130,39 +130,52 @@ $full_name = htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
     <title>KidsSaving - Parent Account</title>
     <link rel="stylesheet" href="parent_account.css">
     <style>
-        .error { color: red; margin: 10px 0; }
-        .success { color: green; margin: 10px 0; }
-        .profile-pic {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #ff6f61;
-        }
-        form {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        input, button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-        button {
-            background-color: #ff6f61;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #ff5733;
-        }
+    .error {
+        color: red;
+        margin: 10px 0;
+    }
+
+    .success {
+        color: green;
+        margin: 10px 0;
+    }
+
+    .profile-pic {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #ff6f61;
+    }
+
+    form {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    input,
+    button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+
+    button {
+        background-color: #ff6f61;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #ff5733;
+    }
     </style>
 </head>
 
@@ -181,37 +194,34 @@ $full_name = htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
             <li><a href="logout.php">🚪 Log out</a></li>
         </ul>
     </aside>
-    
+
     <div class="main-content">
         <div class="container">
             <h1>👤 My Account</h1>
-            
+
             <!-- Display error/success messages -->
             <?php if (!empty($error)): ?>
-                <div class="error"><?php echo htmlspecialchars($error); ?></div>
+            <div class="error"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
             <?php if (!empty($success)): ?>
-                <div class="success"><?php echo htmlspecialchars($success); ?></div>
+            <div class="success"><?php echo htmlspecialchars($success); ?></div>
             <?php endif; ?>
-            
+
             <div class="profile-card">
-                <img src="<?php echo htmlspecialchars($user['profile_pic']); ?>" 
-                     alt="Profile Picture" class="profile-pic">
+                <img src="<?php echo htmlspecialchars($user['profile_pic']); ?>" alt="Profile Picture"
+                    class="profile-pic">
                 <h2>Name: <?php echo $full_name; ?></h2>
                 <p>Email: <?php echo htmlspecialchars($user['email']); ?></p>
             </div>
 
             <form method="POST" action="" enctype="multipart/form-data">
                 <h2>Update Profile</h2>
-                <input type="text" name="first_name" 
-                       value="<?php echo htmlspecialchars($user['first_name']); ?>" 
-                       placeholder="First Name" required>
-                <input type="text" name="last_name" 
-                       value="<?php echo htmlspecialchars($user['last_name']); ?>" 
-                       placeholder="Last Name" required>
-                <input type="email" name="email" 
-                       value="<?php echo htmlspecialchars($user['email']); ?>" 
-                       placeholder="Email" required>
+                <input type="text" name="first_name" value="<?php echo htmlspecialchars($user['first_name']); ?>"
+                    placeholder="First Name" required>
+                <input type="text" name="last_name" value="<?php echo htmlspecialchars($user['last_name']); ?>"
+                    placeholder="Last Name" required>
+                <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>"
+                    placeholder="Email" required>
                 <label for="profile_pic">Profile Picture:</label>
                 <input type="file" name="profile_pic" accept="image/*">
                 <button type="submit" name="update_profile">Update Profile</button>
@@ -219,17 +229,17 @@ $full_name = htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
 
             <form method="POST" action="">
                 <h2>Change Password</h2>
-                <input type="password" name="new_password" 
-                       placeholder="New Password" required minlength="8">
-                <input type="password" name="confirm_password" 
-                       placeholder="Confirm New Password" required minlength="8">
+                <input type="password" name="new_password" placeholder="New Password" required minlength="8">
+                <input type="password" name="confirm_password" placeholder="Confirm New Password" required
+                    minlength="8">
                 <button type="submit" name="change_password">Change Password</button>
             </form>
         </div>
     </div>
-    
+
     <footer class="footer">
         <p>&copy; 2025 KidsSaving. Learn, Save, and Have Fun!</p>
     </footer>
 </body>
+
 </html>

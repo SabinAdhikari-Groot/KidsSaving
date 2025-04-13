@@ -40,12 +40,14 @@ $approved_result = $stmt->get_result();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KidsSaving Tasks</title>
     <link rel="stylesheet" href="children_tasks.css">
 </head>
+
 <body>
     <aside class="sidebar">
         <h2>🎮 KidsSaving</h2>
@@ -144,4 +146,5 @@ $approved_result = $stmt->get_result();
         </div>
     </div>
 </body>
+
 </html>

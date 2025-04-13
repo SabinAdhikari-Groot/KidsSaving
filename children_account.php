@@ -41,17 +41,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     // Connect with Parent
     if (isset($_POST['connect_parent'])) {
-        $parent_email = trim($_POST['parent_email']);
-        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND account_type = 'Parent'");
-        $stmt->bind_param("s", $parent_email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            $parent_id = $result->fetch_assoc()['id'];
-            $stmt = $conn->prepare("INSERT INTO parent_children_connection (parent_id, child_id) VALUES (?, ?)");
-            $stmt->bind_param("ii", $parent_id, $user_id);
+        // Check if child already has a parent connection
+        $check_stmt = $conn->prepare("SELECT parent_id FROM parent_children_connection WHERE child_id = ?");
+        $check_stmt->bind_param("i", $user_id);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows > 0) {
+            $error_message = "You are already connected with a parent. Please disconnect from your current parent before connecting with a new one.";
+        } else {
+            $parent_email = trim($_POST['parent_email']);
+            $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND account_type = 'Parent'");
+            $stmt->bind_param("s", $parent_email);
             $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result->num_rows > 0) {
+                $parent_id = $result->fetch_assoc()['id'];
+                $stmt = $conn->prepare("INSERT INTO parent_children_connection (parent_id, child_id) VALUES (?, ?)");
+                $stmt->bind_param("ii", $parent_id, $user_id);
+                $stmt->execute();
+                $success_message = "Successfully connected with parent!";
+            } else {
+                $error_message = "No parent found with this email address.";
+            }
         }
+    }
+
+    // Disconnect from Parent
+    if (isset($_POST['disconnect_parent'])) {
+        $stmt = $conn->prepare("DELETE FROM parent_children_connection WHERE child_id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $success_message = "Successfully disconnected from parent.";
     }
 }
 
@@ -124,17 +145,31 @@ $parents = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
             <form method="POST" action="">
                 <h2>Connect with Parent</h2>
+                <?php if (isset($error_message)): ?>
+                <div class="error-message"><?php echo $error_message; ?></div>
+                <?php endif; ?>
+                <?php if (isset($success_message)): ?>
+                <div class="success-message"><?php echo $success_message; ?></div>
+                <?php endif; ?>
                 <input type="email" name="parent_email" placeholder="Parent's Email" required>
                 <button type="submit" name="connect_parent">Connect</button>
             </form>
 
-            <h2>👨‍👩‍👧‍👦 Connected Parents</h2>
+            <h2>👨‍👩‍👧‍👦 Connected Parent</h2>
+            <?php if (!empty($parents)): ?>
             <ul>
                 <?php foreach ($parents as $parent): ?>
-                <li><?php echo htmlspecialchars($parent['first_name'] . ' ' . $parent['last_name']) . " (" . htmlspecialchars($parent['email']) . ")"; ?>
+                <li>
+                    <?php echo htmlspecialchars($parent['first_name'] . ' ' . $parent['last_name']) . " (" . htmlspecialchars($parent['email']) . ")"; ?>
+                    <form method="POST" action="" style="display: inline;">
+                        <button type="submit" name="disconnect_parent" class="disconnect-btn">Disconnect</button>
+                    </form>
                 </li>
                 <?php endforeach; ?>
             </ul>
+            <?php else: ?>
+            <p>No parent connected yet.</p>
+            <?php endif; ?>
         </div>
     </div>
 

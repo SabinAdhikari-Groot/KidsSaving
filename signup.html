@@ -5,44 +5,209 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
     <link rel="stylesheet" href="signup.css">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        .error-message {
+            color: red;
+            font-size: 0.8em;
+            margin-top: 4px;
+            display: none;
+        }
+        .input-error {
+            border-color: red;
+        }
+    </style>
 </head>
 <body>
     <div class="signup-container">
         <h2>Sign Up</h2>
         <form id="signupForm" action="signup.php" method="POST">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
-            
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
-            
-            <label for="confirm-password">Re-enter password</label>
-            <input type="password" id="confirm-password" name="confirm-password" required>
-            
-            <label for="first-name">First name</label>
-            <input type="text" id="first-name" name="first-name" required>
-            
-            <label for="last-name">Last name</label>
-            <input type="text" id="last-name" name="last-name" required>
-            
-            <label for="dob">Date of birth (YYYY/MM/DD)</label>
-            <input type="date" id="dob" name="dob" required>
-            
-            <label>Account for</label>
-            <div class="radio-group">
-                <input type="radio" id="child" name="account-type" value="Child" required>
-                <label for="child">Child</label>
-                <input type="radio" id="parent" name="account-type" value="Parent" required>
-                <label for="parent">Parent</label>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+                <span class="error-message" id="email-error"></span>
             </div>
             
-            <div class="terms">
-                <input type="checkbox" id="terms" name="terms" required>
-                <label for="terms">I agree to the <a href="#">terms and services</a>.</label>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+                <span class="error-message" id="password-error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm-password">Re-enter password</label>
+                <input type="password" id="confirm-password" name="confirm-password" required>
+                <span class="error-message" id="confirm-password-error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="first-name">First name</label>
+                <input type="text" id="first-name" name="first-name" required>
+                <span class="error-message" id="first-name-error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="last-name">Last name</label>
+                <input type="text" id="last-name" name="last-name" required>
+                <span class="error-message" id="last-name-error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="dob">Date of birth (YYYY/MM/DD)</label>
+                <input type="text" id="dob" name="dob" required>
+                <span class="error-message" id="dob-error"></span>
+            </div>
+            
+            <div class="form-group">
+                <label>Account for</label>
+                <div class="radio-group">
+                    <input type="radio" id="child" name="account-type" value="Child" required>
+                    <label for="child">Child</label>
+                    <input type="radio" id="parent" name="account-type" value="Parent" required>
+                    <label for="parent">Parent</label>
+                </div>
+                <span class="error-message" id="account-type-error"></span>
+            </div>
+            
+            <div class="form-group">
+                <div class="terms">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I agree to the terms and services.</label>
+                </div>
+                <span class="error-message" id="terms-error"></span>
             </div>
             
             <button type="submit">Sign Up</button>
         </form>
     </div>
+    <script>
+        flatpickr("#dob", {
+            dateFormat: "Y/m/d",
+            maxDate: "today",
+            allowInput: true
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let isValid = true;
+
+            // Clear previous errors
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+            document.querySelectorAll('input').forEach(el => {
+                el.classList.remove('input-error');
+            });
+
+            // Email validation
+            const email = document.getElementById('email');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email.value)) {
+                showError(email, 'email-error', 'Please enter a valid email address');
+                isValid = false;
+            }
+
+            // Password validation
+            const password = document.getElementById('password');
+            if (password.value.length < 8) {
+                showError(password, 'password-error', 'Password must be at least 8 characters long');
+                isValid = false;
+            }
+
+            // Password confirmation
+            const confirmPassword = document.getElementById('confirm-password');
+            if (password.value !== confirmPassword.value) {
+                showError(confirmPassword, 'confirm-password-error', 'Passwords do not match');
+                isValid = false;
+            }
+
+            // Name validation
+            const firstName = document.getElementById('first-name');
+            const lastName = document.getElementById('last-name');
+            if (firstName.value.trim().length < 2) {
+                showError(firstName, 'first-name-error', 'First name must be at least 2 characters long');
+                isValid = false;
+            }
+            if (lastName.value.trim().length < 2) {
+                showError(lastName, 'last-name-error', 'Last name must be at least 2 characters long');
+                isValid = false;
+            }
+
+            // Date of birth validation
+            const dob = document.getElementById('dob');
+            if (!dob.value) {
+                showError(dob, 'dob-error', 'Please select a date of birth');
+                isValid = false;
+            }
+
+            // Account type validation
+            const accountType = document.querySelector('input[name="account-type"]:checked');
+            if (!accountType) {
+                showError(document.querySelector('.radio-group'), 'account-type-error', 'Please select an account type');
+                isValid = false;
+            }
+
+            // Terms validation
+            const terms = document.getElementById('terms');
+            if (!terms.checked) {
+                showError(terms, 'terms-error', 'You must agree to the terms and services');
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Create FormData object
+                const formData = new FormData(this);
+
+                // Send form data to server
+                fetch('signup.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message and redirect
+                        alert(data.message);
+                        window.location.href = data.redirect;
+                    } else {
+                        // Display errors from server
+                        Object.keys(data.errors).forEach(field => {
+                            const input = document.getElementById(field);
+                            if (input) {
+                                showError(input, `${field}-error`, data.errors[field]);
+                            } else if (field === 'general') {
+                                alert(data.errors[field]);
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            }
+        });
+
+        function showError(input, errorId, message) {
+            const errorElement = document.getElementById(errorId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            input.classList.add('input-error');
+        }
+
+        // Add real-time validation
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    const errorId = this.id + '-error';
+                    showError(this, errorId, 'This field is required');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

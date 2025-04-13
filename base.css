@@ -1,0 +1,152 @@
+:root {
+    --primary-dark: #1a2238;
+    --primary-light: #9daaf2;
+    --accent-orange: #ff6a3d;
+    --accent-yellow: #f4db7d;
+    --text-light: #ffffff;
+    --text-dark: #1a2238;
+    --background-light: #f8f9fa;
+    --background-dark: #1a2238;
+    --gradient-primary: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+    --gradient-accent: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-yellow) 100%);
+    
+    /* Main content colors based on provided palette */
+    --main-bg-light: #f4f6ff;
+    --main-bg-dark: #e8ecff;
+    --main-gradient: linear-gradient(135deg, var(--main-bg-light) 0%, var(--main-bg-dark) 100%);
+    --main-text: var(--primary-dark);
+    --main-border: var(--primary-light);
+    --main-shadow: rgba(157, 170, 242, 0.15);
+    --main-accent: var(--accent-orange);
+    --main-highlight: var(--accent-yellow);
+}
+
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background-color: var(--background-light);
+    margin: 0;
+    padding: 0;
+    color: var(--text-dark);
+}
+
+.sidebar {
+    background: var(--gradient-primary);
+    color: var(--text-light);
+}
+
+.button-primary {
+    background: var(--main-accent);
+    color: var(--text-light);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.button-primary:hover {
+    background: var(--main-highlight);
+    transform: translateY(-2px);
+}
+
+.card {
+    background: var(--text-light);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(26, 34, 56, 0.1);
+    padding: 20px;
+    margin: 15px 0;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--main-shadow);
+}
+
+.heading {
+    color: var(--primary-dark);
+    font-weight: 700;
+}
+
+.accent-text {
+    color: var(--accent-orange);
+}
+
+/* Common animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+/* Main Content Base Styles */
+.main-content {
+    background: var(--main-gradient);
+    color: var(--main-text);
+}
+
+.container {
+    background: var(--text-light);
+    border: 1px solid var(--main-border);
+    box-shadow: 0 4px 12px var(--main-shadow);
+}
+
+/* Card styles for main content */
+.card {
+    background: var(--text-light);
+    border: 1px solid var(--main-border);
+    box-shadow: 0 2px 8px var(--main-shadow);
+}
+
+/* Table styles for main content */
+table {
+    border-color: var(--main-border);
+}
+
+th {
+    background: var(--primary-light);
+    color: var(--text-light);
+}
+
+tr:nth-child(even) {
+    background-color: var(--main-bg-light);
+}
+
+/* Form elements in main content */
+input, select, textarea {
+    border-color: var(--main-border);
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 2px var(--main-shadow);
+}
+
+/* Buttons and interactive elements */
+.button-primary {
+    background: var(--main-accent);
+    color: var(--text-light);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.button-primary:hover {
+    background: var(--main-highlight);
+    transform: translateY(-2px);
+}
+
+/* Accent elements */
+.accent-border {
+    border-left: 4px solid var(--main-accent);
+}
+
+.highlight-text {
+    color: var(--main-highlight);
+} 

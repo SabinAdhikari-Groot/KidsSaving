@@ -62,21 +62,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['deposit-amount'])) {
         $new_balance = $balance + $deposit_amount;
         $new_total_earnings = $total_earnings - $deposit_amount;
 
-        // Update bank account
-        $sql = "UPDATE bank_accounts SET balance = ? WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("di", $new_balance, $user_id);
-        $stmt->execute();
+        // Start transaction
+        $conn->begin_transaction();
 
-        // Update earnings
-        $sql = "UPDATE user_earnings SET total_earnings = ? WHERE user_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("di", $new_total_earnings, $user_id);
-        $stmt->execute();
+        try {
+            // Update bank account
+            $sql = "UPDATE bank_accounts SET balance = ? WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("di", $new_balance, $user_id);
+            $stmt->execute();
 
-        // Refresh page to show updated values
-        header('Location: children_virtual_bank.php');
-        exit();
+            // Update earnings
+            $sql = "UPDATE user_earnings SET total_earnings = ? WHERE user_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("di", $new_total_earnings, $user_id);
+            $stmt->execute();
+
+            // Record transaction
+            $sql = "INSERT INTO transactions (account_id, amount, type) VALUES (?, ?, 'deposit')";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("id", $user_id, $deposit_amount);
+            $stmt->execute();
+
+            // Commit transaction
+            $conn->commit();
+
+            // Refresh page to show updated values
+            header('Location: children_virtual_bank.php');
+            exit();
+        } catch (Exception $e) {
+            // Rollback transaction on error
+            $conn->rollback();
+            echo "<script>alert('An error occurred. Please try again.');</script>";
+        }
     }
 }
 
@@ -92,22 +110,51 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['withdraw-amount'])) {
         $new_balance = $balance - $withdraw_amount;
         $new_total_earnings = $total_earnings + $withdraw_amount;
 
-        // Update bank account
-        $sql = "UPDATE bank_accounts SET balance = ? WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("di", $new_balance, $user_id);
-        $stmt->execute();
+        // Start transaction
+        $conn->begin_transaction();
 
-        // Update earnings
-        $sql = "UPDATE user_earnings SET total_earnings = ? WHERE user_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("di", $new_total_earnings, $user_id);
-        $stmt->execute();
+        try {
+            // Update bank account
+            $sql = "UPDATE bank_accounts SET balance = ? WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("di", $new_balance, $user_id);
+            $stmt->execute();
 
-        // Refresh page to show updated values
-        header('Location: children_virtual_bank.php');
-        exit();
+            // Update earnings
+            $sql = "UPDATE user_earnings SET total_earnings = ? WHERE user_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("di", $new_total_earnings, $user_id);
+            $stmt->execute();
+
+            // Record transaction
+            $sql = "INSERT INTO transactions (account_id, amount, type) VALUES (?, ?, 'withdraw')";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("id", $user_id, $withdraw_amount);
+            $stmt->execute();
+
+            // Commit transaction
+            $conn->commit();
+
+            // Refresh page to show updated values
+            header('Location: children_virtual_bank.php');
+            exit();
+        } catch (Exception $e) {
+            // Rollback transaction on error
+            $conn->rollback();
+            echo "<script>alert('An error occurred. Please try again.');</script>";
+        }
     }
+}
+
+// Fetch latest 5 transactions
+$sql = "SELECT amount, type, date FROM transactions WHERE account_id = ? ORDER BY date DESC LIMIT 5";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$transactions_result = $stmt->get_result();
+$transactions = [];
+while ($row = $transactions_result->fetch_assoc()) {
+    $transactions[] = $row;
 }
 ?>
 
@@ -164,6 +211,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['withdraw-amount'])) {
                         min="0.01" step="0.01" required>
                     <button type="submit" class="transaction-btn">Withdraw</button>
                 </form>
+            </div>
+
+            <div class="transaction-history">
+                <h2>Recent Transactions</h2>
+                <table class="activity-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($transactions as $transaction): ?>
+                        <tr>
+                            <td><?php echo date('M d, Y', strtotime($transaction['date'])); ?></td>
+                            <td class="<?php echo $transaction['type']; ?>">
+                                <?php echo ucfirst($transaction['type']); ?>
+                            </td>
+                            <td>$<?php echo number_format($transaction['amount'], 2); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                        <?php if (empty($transactions)): ?>
+                        <tr>
+                            <td colspan="3">No transactions yet</td>
+                        </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

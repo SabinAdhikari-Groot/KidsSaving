@@ -1,4 +1,5 @@
 <?php
+session_start();
 // Database connection
 $servername = "localhost";
 $username = "root";
@@ -10,6 +11,21 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
+}
+
+// Check if user has already played today
+$user_id = $_SESSION['user_id'];
+$today = date('Y-m-d');
+$check_attempt = "SELECT * FROM quiz_attempts WHERE user_id = ? AND attempt_date = ?";
+$stmt = $conn->prepare($check_attempt);
+$stmt->bind_param("is", $user_id, $today);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    echo "<script>alert('You have already earned points from the quiz today. Come back tomorrow!');
+          window.location.href = 'children_dashboard.php';</script>";
+    exit();
 }
 
 // Fetch 10 random quiz questions
@@ -91,9 +107,25 @@ $conn->close();
 
     function loadQuestion() {
         if (currentQuestionIndex >= questions.length) {
+            // Calculate points based on score (e.g., 10 points per correct answer)
+            let earnedPoints = score * 10;
+            
+            // Send score to server
+            fetch('save_quiz_result.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    score: score,
+                    points: earnedPoints
+                })
+            });
+
             document.getElementById("quiz-container").innerHTML = `
                     <h2>Quiz Completed!</h2>
                     <p>Your Score: ${score} / ${questions.length}</p>
+                    <p>Points Earned: ${earnedPoints}</p>
                     <button class="back-btn" onclick="goBack()">🏠 Back to Dashboard</button>
                 `;
             return;

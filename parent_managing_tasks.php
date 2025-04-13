@@ -25,6 +25,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_task'])) {
     $stmt->execute();
 }
 
+// Update task
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_task'])) {
+    $task_id = intval($_POST['task_id']);
+    $task_name = $_POST['task_name'];
+    $task_value = floatval($_POST['task_value']);
+    $assigned_to = intval($_POST['assigned_to']);
+    
+    $update_sql = "UPDATE tasks SET task_name = ?, task_value = ?, assigned_to = ? WHERE id = ? AND assigned_by = ? AND status = 'pending'";
+    $stmt = $conn->prepare($update_sql);
+    $stmt->bind_param("sdiis", $task_name, $task_value, $assigned_to, $task_id, $parent_id);
+    $stmt->execute();
+}
+
+// Delete task
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_task'])) {
+    $task_id = intval($_POST['task_id']);
+    $delete_sql = "DELETE FROM tasks WHERE id = ? AND assigned_by = ? AND status = 'pending'";
+    $stmt = $conn->prepare($delete_sql);
+    $stmt->bind_param("ii", $task_id, $parent_id);
+    $stmt->execute();
+}
+
 // Fetch all tasks assigned by this parent
 $tasks_sql = "SELECT t.*, u.first_name, u.last_name FROM tasks t
              JOIN users u ON t.assigned_to = u.id
@@ -37,12 +59,14 @@ $tasks_result = $stmt->get_result();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Tasks</title>
     <link rel="stylesheet" href="parent_managing_tasks.css">
 </head>
+
 <body>
     <aside class="sidebar">
         <h2>👨‍👩‍👧‍👦 Parent Dashboard</h2>
@@ -102,15 +126,49 @@ $tasks_result = $stmt->get_result();
                     <tbody>
                         <?php while ($task = $tasks_result->fetch_assoc()): ?>
                         <tr>
-                            <td><?= htmlspecialchars($task['task_name']) ?></td>
-                            <td><?= htmlspecialchars($task['first_name'] . ' ' . $task['last_name']) ?></td>
-                            <td>$<?= number_format($task['task_value'], 2) ?></td>
+                            <td>
+                                <?php if ($task['status'] == 'pending'): ?>
+                                <form method="POST" class="edit-task-form" style="display: inline;">
+                                    <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
+                                    <input type="text" name="task_name"
+                                        value="<?= htmlspecialchars($task['task_name']) ?>" required>
+                                    <?php else: ?>
+                                    <?= htmlspecialchars($task['task_name']) ?>
+                                    <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($task['status'] == 'pending'): ?>
+                                <select name="assigned_to" required>
+                                    <?php 
+                                        $children_result->data_seek(0); // Reset the result pointer
+                                        while ($child = $children_result->fetch_assoc()): 
+                                        ?>
+                                    <option value="<?= $child['id'] ?>"
+                                        <?= $child['id'] == $task['assigned_to'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($child['first_name'] . ' ' . $child['last_name']) ?>
+                                    </option>
+                                    <?php endwhile; ?>
+                                </select>
+                                <?php else: ?>
+                                <?= htmlspecialchars($task['first_name'] . ' ' . $task['last_name']) ?>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($task['status'] == 'pending'): ?>
+                                <input type="number" name="task_value" value="<?= $task['task_value'] ?>" min="0.01"
+                                    step="0.01" required>
+                                <?php else: ?>
+                                $<?= number_format($task['task_value'], 2) ?>
+                                <?php endif; ?>
+                            </td>
                             <td><?= ucfirst($task['status']) ?></td>
                             <td>
                                 <?php if ($task['status'] == 'pending'): ?>
-                                <form method="POST" action="parent_managing_tasks.php" style="display:inline;">
+                                <button type="submit" name="update_task" class="update-btn">Update</button>
+                                </form>
+                                <form method="POST" style="display: inline;">
                                     <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
-                                    <button type="submit" name="delete_task">Delete</button>
+                                    <button type="submit" name="delete_task" class="delete-btn">Delete</button>
                                 </form>
                                 <?php endif; ?>
                             </td>
@@ -122,4 +180,5 @@ $tasks_result = $stmt->get_result();
         </div>
     </div>
 </body>
+
 </html>

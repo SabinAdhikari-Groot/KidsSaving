@@ -13,6 +13,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $userType = $_POST['user_type'];
     $terms = isset($_POST['terms']) ? 1 : 0; // Assuming user must accept terms
 
+    // Check for admin login first
+    if ($username === 'admin' && $password === 'admin') {
+        $_SESSION['user_id'] = 1;
+        $_SESSION['user_email'] = 'admin';
+        $_SESSION['user_type'] = 'Admin';
+        header('Location: admin_dashboard.php');
+        exit();
+    }
+
     // Initialize an error array
     $errors = [];
 

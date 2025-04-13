@@ -3,47 +3,59 @@ session_start();
 include 'db.php';
 
 $parent_id = $_SESSION['user_id'];
+$message = '';
 
-// Approve completed task
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['approve_task'])) {
-    $task_id = intval($_POST['task_id']);
-    $user_id = intval($_POST['user_id']);
-    
-    // Get task value
-    $task_query = "SELECT task_value FROM tasks WHERE id = ?";
-    $stmt = $conn->prepare($task_query);
-    $stmt->bind_param("i", $task_id);
-    $stmt->execute();
-    $task_result = $stmt->get_result();
-    $task = $task_result->fetch_assoc();
-    $task_value = $task['task_value'];
+// Handle POST actions
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['approve_task'])) {
+        $task_id = intval($_POST['task_id']);
+        $user_id = intval($_POST['user_id']);
 
-    // Mark task as approved
-    $approve_sql = "UPDATE tasks SET status='approved' WHERE id=?";
-    $stmt = $conn->prepare($approve_sql);
-    $stmt->bind_param("i", $task_id);
-    $stmt->execute();
+        // Get task value
+        $stmt = $conn->prepare("SELECT task_value FROM tasks WHERE id = ?");
+        $stmt->bind_param("i", $task_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $task = $result->fetch_assoc();
+        $task_value = $task['task_value'];
 
-    // Add earnings entry
-    $insert_earnings = "INSERT INTO earnings (user_id, task_id, source, earned_date, amount) 
-                       VALUES (?, ?, 'Task Completion', NOW(), ?)";
-    $stmt = $conn->prepare($insert_earnings);
-    $stmt->bind_param("iid", $user_id, $task_id, $task_value);
-    $stmt->execute();
+        // Update task status to approved
+        $stmt = $conn->prepare("UPDATE tasks SET status='approved' WHERE id=?");
+        $stmt->bind_param("i", $task_id);
+        $stmt->execute();
 
-    // Update child's total earnings
-    $update_earnings = "UPDATE user_earnings SET total_earnings = total_earnings + ? WHERE user_id = ?";
-    $stmt = $conn->prepare($update_earnings);
-    $stmt->bind_param("di", $task_value, $user_id);
-    $stmt->execute();
+        // Insert earnings entry
+        $stmt = $conn->prepare("INSERT INTO earnings (user_id, task_id, source, earned_date, amount) 
+                                VALUES (?, ?, 'Task Completion', NOW(), ?)");
+        $stmt->bind_param("iid", $user_id, $task_id, $task_value);
+        $stmt->execute();
+
+        // Update user's total earnings
+        $stmt = $conn->prepare("UPDATE user_earnings SET total_earnings = total_earnings + ? WHERE user_id = ?");
+        $stmt->bind_param("di", $task_value, $user_id);
+        $stmt->execute();
+
+        $message = "Task approved and earnings added.";
+    }
+
+    if (isset($_POST['reject_task'])) {
+        $task_id = intval($_POST['task_id']);
+
+        // Reset task status to pending
+        $stmt = $conn->prepare("UPDATE tasks SET status='pending' WHERE id=?");
+        $stmt->bind_param("i", $task_id);
+        $stmt->execute();
+
+        $message = "Task rejected and set back to pending.";
+    }
 }
 
-// Fetch completed tasks from this parent's children
-$completed_tasks_sql = "SELECT t.*, u.first_name, u.last_name FROM tasks t
-                      JOIN users u ON t.assigned_to = u.id
-                      WHERE t.assigned_by = ? AND t.status='completed' 
-                      ORDER BY t.completed_at DESC";
-$stmt = $conn->prepare($completed_tasks_sql);
+// Fetch completed tasks assigned by this parent
+$stmt = $conn->prepare("SELECT t.*, u.first_name, u.last_name 
+                        FROM tasks t 
+                        JOIN users u ON t.assigned_to = u.id 
+                        WHERE t.assigned_by = ? AND t.status = 'completed' 
+                        ORDER BY t.completed_at DESC");
 $stmt->bind_param("i", $parent_id);
 $stmt->execute();
 $completed_tasks_result = $stmt->get_result();
@@ -51,13 +63,16 @@ $completed_tasks_result = $stmt->get_result();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Approve Tasks</title>
+    <title>Approve Completed Tasks</title>
     <link rel="stylesheet" href="parent_approving_tasks.css">
 </head>
+
 <body>
+
     <aside class="sidebar">
         <h2>👨‍👩‍👧‍👦 Parent Dashboard</h2>
         <ul>
@@ -75,9 +90,12 @@ $completed_tasks_result = $stmt->get_result();
     <div class="main-content">
         <div class="container">
             <h1>✅ Approve Completed Tasks</h1>
-            <p>Review and approve tasks completed by your children.</p>
+            <p>Review and approve or reject tasks completed by your children.</p>
 
-            <!-- Task Approval List -->
+            <?php if (!empty($message)): ?>
+            <p class="success"><?= htmlspecialchars($message) ?></p>
+            <?php endif; ?>
+
             <div class="task-list">
                 <?php if ($completed_tasks_result->num_rows > 0): ?>
                 <table>
@@ -98,10 +116,14 @@ $completed_tasks_result = $stmt->get_result();
                             <td>$<?= number_format($task['task_value'], 2) ?></td>
                             <td><?= date("M j, Y", strtotime($task['completed_at'])) ?></td>
                             <td>
-                                <form method="POST">
+                                <form method="POST" style="display:inline;">
                                     <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
                                     <input type="hidden" name="user_id" value="<?= $task['assigned_to'] ?>">
                                     <button type="submit" name="approve_task" class="approve-btn">Approve</button>
+                                </form>
+                                <form method="POST" style="display:inline;">
+                                    <input type="hidden" name="task_id" value="<?= $task['id'] ?>">
+                                    <button type="submit" name="reject_task" class="reject-btn">Reject</button>
                                 </form>
                             </td>
                         </tr>
@@ -114,5 +136,7 @@ $completed_tasks_result = $stmt->get_result();
             </div>
         </div>
     </div>
+
 </body>
+
 </html>

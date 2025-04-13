@@ -1,6 +1,22 @@
+@import url('base.css');
+
+/* Root Variables for Colors */
+:root {
+  --primary-color: #4CAF50;      /* Fresh Green */
+  --secondary-color: #FFC107;    /* Warm Yellow */
+  --accent-color: #FF5722;       /* Vibrant Orange */
+  --background-light: #F5F9FF;   /* Light Blue Background */
+  --text-dark: #2C3E50;          /* Dark Blue Text */
+  --text-light: #FFFFFF;         /* White Text */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --card-background: #FFFFFF;
+  --error-color: #FF5252;
+  --success-color: #4CAF50;
+}
+
 body {
     font-family: 'Comic Sans MS', cursive, sans-serif;
-    background-color: #f9f7c9;
+    background-color: var(--background-light);
     margin: 0;
     padding: 0;
     display: flex;
@@ -9,11 +25,11 @@ body {
 }
 
 .sidebar {
-    width: 250px;
-    background-color: #ffcc5c;
-    padding: 5px;
+    width: 280px;
+    background: var(--gradient-primary);
+    padding: 10px 15px;
     height: 100vh;
-    color: #fff;
+    color: var(--text-light);
     text-align: center;
     position: fixed;
     left: 0;
@@ -21,255 +37,432 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: all 0.3s ease;
 }
 
 .sidebar h2 {
-    font-size: 16px;
+    font-size: 24px;
+    margin-bottom: 30px;
+    color: var(--text-light);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    width: 100%;
 }
 
 .sidebar ul {
     list-style: none;
     padding: 0;
     width: 100%;
+    margin-top: 20px;
 }
 
 .sidebar ul li {
-    margin: 10px 0;
+    margin: 8px 0;
 }
 
 .sidebar ul li a {
     text-decoration: none;
-    color: #fff;
+    color: var(--text-light);
     font-size: 16px;
-    display: block;
-    padding: 10px;
-    background-color: #ff6f61;
-    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar ul li a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
 }
 
 .sidebar ul li a:hover {
-    background-color: #ff5733;
+    background-color: var(--accent-orange);
+    transform: translateX(5px);
 }
 
+.sidebar ul li a:hover::before {
+    transform: translateX(0);
+}
 
-/* ===== Main Layout ===== */
+.sidebar ul li a i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+/* Main Content Styles */
 .main-content {
     margin-left: 270px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 30px 40px;
+    padding: 2rem;
     min-height: 100vh;
-    background-color: #f9f7c9;
-    box-sizing: border-box;
-  }
-  
-  .container {
-    width: 100%;
+    background-color: var(--background-light);
+    background-image: linear-gradient(135deg, #F5F9FF 0%, #E8F4FF 100%);
+}
+
+.container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 40px;
-    flex-grow: 1;
-    text-align: center;
-  }
-  
-  /* ===== Earnings Table ===== */
-  .earnings-table {
-    margin-top: 40px;
-    padding: 30px;
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease;
-  }
-  
-  .earnings-table:hover {
-    transform: translateY(-3px);
-  }
-  
-  .earnings-table h2 {
-    font-size: 28px;
-    margin-bottom: 25px;
-    color: #ff6f61;
+    padding: 2rem;
+}
+
+/* Header Styles */
+h1 {
+    color: var(--text-dark);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px var(--shadow-color);
+}
+
+h2 {
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    margin: 1.5rem 0;
     position: relative;
-    display: inline-block;
-  }
-  
-  .earnings-table h2::after {
-    content: "";
+}
+
+h2::after {
+    content: '';
     position: absolute;
     bottom: -8px;
     left: 0;
-    width: 100%;
-    height: 3px;
-    background: #ffcc5c;
-    border-radius: 3px;
-  }
-  
-  table {
+    width: 60px;
+    height: 4px;
+    background: var(--secondary-color);
+    border-radius: 2px;
+}
+
+/* Earnings Table Styles */
+.earnings-table {
+    background: var(--card-background);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 8px 20px var(--shadow-color);
+    transition: transform 0.3s ease;
+}
+
+.earnings-table:hover {
+    transform: translateY(-5px);
+}
+
+table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    margin: 25px 0;
-  }
-  
-  table th, table td {
-    padding: 15px;
-    text-align: center;
-    font-size: 18px;
-    border-bottom: 1px solid #eee;
-  }
-  
-  table th {
-    background-color: #ff6f61;
-    color: white;
-    font-weight: bold;
-    position: sticky;
-    top: 0;
-  }
-  
-  table tr:nth-child(even) {
-    background-color: #fff9e6;
-  }
-  
-  table tr:hover {
-    background-color: #ffeedd;
-    transform: scale(1.01);
-    transition: all 0.2s ease;
-  }
-  
-  table td {
-    font-weight: bold;
-    color: #555;
-  }
-  
-  /* ===== Earnings Goals ===== */
-  .earnings-goals {
-    margin-top: 40px;
-    padding: 30px;
-    background-color: #fff;
+    margin: 1rem 0;
+}
+
+table th {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    padding: 1rem;
+    font-weight: 600;
+    text-align: left;
+}
+
+table th:first-child {
+    border-top-left-radius: 10px;
+}
+
+table th:last-child {
+    border-top-right-radius: 10px;
+}
+
+table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    color: var(--text-dark);
+}
+
+table tr:hover {
+    background-color: rgba(76, 175, 80, 0.05);
+}
+
+/* Savings Goals Section */
+.earnings-goals {
+    background: var(--card-background);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 8px 20px var(--shadow-color);
+}
+
+.create-goal-form {
+    background: linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%);
     border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
-  }
-  
-  .earnings-goals h2 {
-    font-size: 28px;
-    margin-bottom: 25px;
-    color: #ff6f61;
-    position: relative;
-    display: inline-block;
-  }
-  
-  .earnings-goals h2::after {
-    content: "";
-    position: absolute;
-    bottom: -8px;
-    left: 0;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input {
     width: 100%;
-    height: 3px;
-    background: #ffcc5c;
-    border-radius: 3px;
-  }
-  
-  .goal {
-    margin-bottom: 25px;
-    padding: 20px;
-    background-color: #fff9e6;
+    padding: 0.8rem;
+    border: 2px solid var(--secondary-color);
     border-radius: 8px;
+    font-size: 1rem;
     transition: all 0.3s ease;
-  }
-  
-  .goal:hover {
-    transform: translateX(5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .goal p {
-    margin: 8px 0;
-    font-size: 18px;
-    color: #555;
-  }
-  
-  .goal .goal-title {
-    font-weight: bold;
-    color: #ff6f61;
-    font-size: 20px;
-  }
-  
-  progress {
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+.create-goal-btn {
+    background: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.create-goal-btn:hover {
+    background: #43A047;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+/* Goal Display */
+.goal {
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.goal:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(76, 175, 80, 0.2);
+}
+
+.goal-title {
+    color: var(--primary-color);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.progress-text {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+}
+
+/* Progress Bar */
+progress {
     width: 100%;
     height: 25px;
-    margin-top: 15px;
     border-radius: 12px;
     overflow: hidden;
-    border: none;
-  }
-  
-  progress::-webkit-progress-bar {
-    background-color: #f0f0f0;
-    border-radius: 12px;
-  }
-  
-  progress::-webkit-progress-value {
-    background-color: #ff6f61;
-    border-radius: 12px;
-    transition: width 0.5s ease;
-  }
-  
-  progress::-moz-progress-bar {
-    background-color: #ff6f61;
-    border-radius: 12px;
-  }
-  
-  /* ===== Buttons ===== */
-  .create-goal-btn {
-    margin-top: 30px;
-    padding: 12px 30px;
-    background-color: #ff6f61;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 8px rgba(255, 111, 97, 0.3);
-  }
-  
-  .create-goal-btn:hover {
-    background-color: #ff5733;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(255, 87, 51, 0.4);
-  }
-
-    
-.footer {
-    padding: 20px;
-    background-color: #ff6f61;
-    color: #fff;
-    font-size: 16px;
-    text-align: center;
-    width: 100%;
+    margin: 1rem 0;
 }
-  
-  /* ===== Responsive Design ===== */
-  @media (max-width: 768px) {
+
+progress::-webkit-progress-bar {
+    background-color: #E0E0E0;
+    border-radius: 12px;
+}
+
+progress::-webkit-progress-value {
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border-radius: 12px;
+    transition: width 1s ease-in-out;
+}
+
+progress::-moz-progress-bar {
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border-radius: 12px;
+}
+
+/* Message Styles */
+.message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    font-weight: 500;
+    text-align: center;
+}
+
+.success {
+    background-color: #E8F5E9;
+    color: var(--success-color);
+    border: 1px solid #C8E6C9;
+}
+
+/* Footer */
+.footer {
+    background: var(--primary-color);
+    color: var(--text-light);
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+    border-radius: 0 0 15px 15px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
     .main-content {
-      margin-left: 0;
-      padding: 20px;
+        margin-left: 0;
+        padding: 1rem;
     }
-    
+
     .container {
-      padding: 20px;
+        padding: 1rem;
     }
-    
-    table th, table td {
-      padding: 10px;
-      font-size: 16px;
+
+    h1 {
+        font-size: 2rem;
     }
-    
-    .goal {
-      padding: 15px;
+
+    .earnings-table, 
+    .earnings-goals {
+        padding: 1rem;
     }
-  }
+
+    .create-goal-form {
+        padding: 1.5rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Pagination Styles */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+    gap: 0.5rem;
+}
+
+.pagination-btn {
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.pagination-btn:hover {
+    background-color: #43A047;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+}
+
+.pagination-btn.active {
+    background-color: var(--secondary-color);
+    color: var(--text-dark);
+    border-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.pagination-btn:disabled {
+    background-color: #E0E0E0;
+    color: #9E9E9E;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Responsive Pagination */
+@media (max-width: 768px) {
+    .pagination {
+        flex-wrap: wrap;
+        gap: 0.3rem;
+    }
+
+    .pagination-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Goal Completion Styles */
+.goal-completed {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+    border-radius: 8px;
+    text-align: center;
+    animation: bounceIn 0.5s ease-out;
+}
+
+.bonus-text {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.bonus-amount {
+    color: var(--accent-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    display: inline-block;
+    margin-top: 0.5rem;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
 

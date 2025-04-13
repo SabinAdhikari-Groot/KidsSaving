@@ -1,6 +1,8 @@
+@import url('base.css');
+
 body {
     font-family: 'Comic Sans MS', cursive, sans-serif;
-    background-color: #f9f7c9;
+    background-color: var(--background-light);
     margin: 0;
     padding: 0;
     display: flex;
@@ -9,11 +11,11 @@ body {
 }
 
 .sidebar {
-    width: 250px;
-    background-color: #ffcc5c;
-    padding: 5px;
+    width: 280px;
+    background: var(--gradient-primary);
+    padding: 20px;
     height: 100vh;
-    color: #fff;
+    color: var(--text-light);
     text-align: center;
     position: fixed;
     left: 0;
@@ -21,16 +23,26 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: all 0.3s ease;
 }
 
 .sidebar h2 {
-    font-size: 16px;
+    font-size: 24px;
+    margin-bottom: 30px;
+    color: var(--text-light);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    width: 100%;
 }
 
 .sidebar ul {
     list-style: none;
     padding: 0;
     width: 100%;
+    margin-top: 20px;
 }
 
 .sidebar ul li {
@@ -39,109 +51,400 @@ body {
 
 .sidebar ul li a {
     text-decoration: none;
-    color: #fff;
+    color: var(--text-light);
     font-size: 16px;
-    display: block;
-    padding: 10px;
-    background-color: #ff6f61;
-    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .sidebar ul li a:hover {
-    background-color: #ff5733;
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(5px);
 }
 
+.sidebar ul li a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-accent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
 
-/* Main Content */
+.sidebar ul li a:hover::before {
+    opacity: 0.1;
+}
+
+/* Main content styles */
 .main-content {
-    margin-left: 270px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
+    margin-left: 250px;
+    padding: 2.5rem;
+    width: calc(100% - 250px);
+    background: linear-gradient(135deg, var(--background-light) 0%, #ffffff 100%);
+    min-height: 100vh;
 }
 
 .container {
-    padding: 40px;
-    flex-grow: 1;
-    text-align: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(26, 34, 56, 0.08);
 }
 
 h1 {
-    color: #ff6f61;
-    font-size: 36px;
-}
-
-/* Task List */
-.task-list {
-    margin-top: 40px;
-    padding: 20px;
-    background-color: #fff3cd;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    border: 2px solid #ff6f61;
-}
-
-.task {
+    color: var(--primary-dark);
+    margin-bottom: 1rem;
+    font-size: 2.5rem;
+    font-weight: 700;
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
-    font-size: 18px;
+    gap: 0.5rem;
 }
 
-.task input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    margin-right: 10px;
+p {
+    color: var(--text-dark);
+    margin-bottom: 2.5rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    opacity: 0.9;
 }
 
-/* Buttons */
+/* Task form styles */
+.task-form {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px rgba(157, 170, 242, 0.15);
+    margin-bottom: 2.5rem;
+    border: 1px solid rgba(157, 170, 242, 0.2);
+}
+
+.form-group {
+    margin-bottom: 1.8rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: var(--primary-dark);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Input field styles */
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    border: 2px solid var(--primary-light);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: rgba(157, 170, 242, 0.05);
+    color: var(--primary-dark);
+}
+
+input[type="text"]:hover,
+input[type="number"]:hover,
+select:hover {
+    border-color: var(--accent-orange);
+    background-color: rgba(255, 106, 61, 0.05);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    border-color: var(--accent-orange);
+    background-color: white;
+    box-shadow: 0 0 0 4px rgba(255, 106, 61, 0.1);
+    outline: none;
+}
+
+/* Button styles */
 button {
-    padding: 10px 20px;
-    margin-top: 10px;
-    background-color: #ff6f61;
-    color: white;
+    padding: 0.9rem 1.5rem;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background 0.3s ease;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    min-width: 130px;
+    text-align: center;
+    margin: 0 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-button:hover {
-    background-color: #ff5733;
+button[type="submit"] {
+    background-color: var(--accent-orange);
+    color: var(--text-light);
+    box-shadow: 0 4px 12px rgba(255, 106, 61, 0.2);
 }
 
-/* Tables */
+button[type="submit"]:hover {
+    background-color: var(--accent-yellow);
+    color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 106, 61, 0.25);
+}
+
+.update-btn {
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+    box-shadow: 0 4px 12px rgba(157, 170, 242, 0.2);
+}
+
+.update-btn:hover {
+    background-color: var(--accent-yellow);
+    color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(157, 170, 242, 0.25);
+}
+
+.delete-btn {
+    background-color: var(--primary-dark);
+    color: var(--text-light);
+    box-shadow: 0 4px 12px rgba(26, 34, 56, 0.2);
+}
+
+.delete-btn:hover {
+    background-color: var(--accent-orange);
+    color: var(--text-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(26, 34, 56, 0.25);
+}
+
+/* Select dropdown styling */
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%231a2238' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 15px) center;
+    padding-right: 40px;
+}
+
+select:focus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ff6a3d' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+}
+
+/* Placeholder styling */
+input::placeholder {
+    color: rgba(26, 34, 56, 0.5);
+}
+
+/* Form in table styles */
+.edit-task-form input[type="text"],
+.edit-task-form input[type="number"],
+.edit-task-form select {
+    width: auto;
+    min-width: 120px;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--primary-light);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background-color: rgba(157, 170, 242, 0.05);
+}
+
+.edit-task-form input[type="text"]:focus,
+.edit-task-form input[type="number"]:focus,
+.edit-task-form select:focus {
+    border-color: var(--accent-orange);
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(255, 106, 61, 0.1);
+}
+
+/* Add Task button specific styling */
+button[name="add_task"] {
+    background: linear-gradient(135deg, var(--accent-orange) 0%, #ff8b66 100%);
+    color: var(--text-light);
+    box-shadow: 0 4px 15px rgba(255, 106, 61, 0.3);
+    border: none;
+    margin-top: 0.5rem;
+}
+
+button[name="add_task"]:hover {
+    background: linear-gradient(135deg, var(--accent-yellow) 0%, #f8e4b0 100%);
+    color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(255, 106, 61, 0.35);
+}
+
+/* Responsive adjustments for form elements */
+@media (max-width: 768px) {
+    .task-form {
+        padding: 1.5rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+        padding: 0.8rem 1rem;
+        font-size: 0.95rem;
+    }
+
+    button {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+
+    .edit-task-form input[type="text"],
+    .edit-task-form input[type="number"],
+    .edit-task-form select {
+        width: 100%;
+        min-width: 200px;
+    }
+}
+
+/* Task list styles */
+.task-list {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px rgba(157, 170, 242, 0.15);
+    border: 1px solid rgba(157, 170, 242, 0.2);
+}
+
+.task-list h2 {
+    color: var(--primary-dark);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Table styles */
 table {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-
-th, td {
-    padding: 12px;
-    border: 2px solid #4CAF50;
-    text-align: left;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1rem;
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 th {
-    background: #4CAF50;
-    color: white;
-    font-weight: bold;
-}
-input[type="text"] {
-    width: 100%; /* Makes it take full width of its container */
-    max-width: 500px; /* Limits the width to prevent it from becoming too large */
-    padding: 12px; /* Increases inner spacing */
-    font-size: 18px; /* Makes text inside larger */
-    border: 2px solid #4CAF50; /* Adds a clear border */
-    border-radius: 8px; /* Rounds the corners */
-    outline: none; /* Removes the default blue outline on focus */
+    background-color: var(--primary-dark);
+    color: var(--text-light);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.8px;
+    padding: 1.25rem 1rem;
+    border-bottom: 2px solid var(--primary-light);
 }
 
-input[type="text"]:focus {
-    border-color: #ff6f61; /* Changes border color when input is focused */
-    box-shadow: 0 0 8px rgba(255, 111, 97, 0.5); /* Adds a subtle glow effect */
+td {
+    padding: 1.25rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(157, 170, 242, 0.15);
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    vertical-align: middle;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover {
+    background-color: rgba(157, 170, 242, 0.05);
+    transition: background-color 0.3s ease;
+}
+
+/* Value column styling */
+td:nth-child(3) {
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-weight: 500;
+    color: var(--primary-dark);
+}
+
+/* Status column styling */
+td:nth-child(4) {
+    font-weight: 600;
+}
+
+td:nth-child(4):contains("Pending") {
+    color: var(--accent-orange);
+    position: relative;
+}
+
+td:nth-child(4):contains("Completed") {
+    color: var(--primary-light);
+    position: relative;
+}
+
+/* Action buttons container */
+td:last-child {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 260px;
+    padding-right: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .container {
+        padding: 1.5rem;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+        width: 100%;
+    }
+
+    .container {
+        padding: 1rem;
+        border-radius: 10px;
+    }
+
+    .task-form,
+    .task-list {
+        padding: 1.5rem;
+    }
+
+    td:last-child {
+        min-width: auto;
+        padding-right: 1rem;
+    }
+
+    .edit-task-form {
+        flex-wrap: wrap;
+    }
+
+    .edit-task-form input[type="text"],
+    .edit-task-form input[type="number"],
+    .edit-task-form select {
+        width: 100%;
+        min-width: 200px;
+    }
 }
 
 /* Footer */

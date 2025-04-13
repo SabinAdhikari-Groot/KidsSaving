@@ -2,25 +2,37 @@
 session_start();
 include 'db.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if (!isset($_SESSION['user_id'])) {
+    header('Location: children_login.php');
+    exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_SESSION['user_id'];
     $goal_name = $_POST['goal_name'];
-    $target_amount = $_POST['target_amount'];
+    $target_amount = floatval($_POST['target_amount']);
 
-    // Insert the new goal into the database
+    // Validate input
+    if (empty($goal_name) || $target_amount <= 0) {
+        $_SESSION['error'] = "Please provide a valid goal name and target amount.";
+        header('Location: children_earnings.php');
+        exit();
+    }
+
+    // Insert new goal
     $insert_query = "INSERT INTO savings_goals (user_id, goal_name, target_amount, amount_saved) VALUES (?, ?, ?, 0)";
     $stmt = $conn->prepare($insert_query);
     $stmt->bind_param("isd", $user_id, $goal_name, $target_amount);
 
     if ($stmt->execute()) {
-        // Return the updated goal display
-        echo "<div class='goal'>
-                <p>Goal: " . htmlspecialchars($goal_name) . " 🏆</p>
-                <p>Target Amount: $" . number_format($target_amount, 2) . "</p>
-                <p>Amount Saved: $0.00</p>
-                <progress value='0' max='$target_amount'></progress>
-              </div>";
+        $_SESSION['success'] = "New savings goal created successfully!";
     } else {
-        echo "<p>Error: " . $conn->error . "</p>";
+        $_SESSION['error'] = "Error creating savings goal. Please try again.";
     }
+
+    header('Location: children_earnings.php');
+    exit();
+} else {
+    header('Location: children_earnings.php');
+    exit();
 }

@@ -40,6 +40,8 @@ if (!empty($children)) {
 // Fetch recent earnings
 $recent_earnings = [];
 if (!empty($children)) {
+    $child_ids = array_keys($children);
+    $placeholders = implode(',', array_fill(0, count($child_ids), '?'));
     $earnings_query = "SELECT e.*, u.first_name, u.last_name FROM earnings e
                       JOIN users u ON e.user_id = u.id
                       WHERE e.user_id IN ($placeholders) 
@@ -54,12 +56,14 @@ if (!empty($children)) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KidsSaving - Track Children's Earnings</title>
     <link rel="stylesheet" href="parent_tracking_earnings.css">
 </head>
+
 <body>
     <aside class="sidebar">
         <h2>👨‍👩‍👧‍👦 Parent Dashboard</h2>
@@ -136,4 +140,5 @@ if (!empty($children)) {
         </div>
     </div>
 </body>
+
 </html>
