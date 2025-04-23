@@ -362,6 +362,209 @@ try {
         font-weight: bold;
         font-size: 20px;
     }
+
+    .search-container {
+        margin: 15px 0;
+    }
+
+    .search-container input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .search-container input:focus {
+        outline: none;
+        border-color: #4e73df;
+    }
+
+    /* Form styles */
+    form {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    form h3 {
+        margin: 0 0 15px 0;
+        font-size: 1.1em;
+        grid-column: 1 / -1;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .form-full-width {
+        grid-column: 1 / -1;
+    }
+
+    form label {
+        display: block;
+        margin: 8px 0 4px;
+        font-size: 0.9em;
+        color: #666;
+    }
+
+    form input[type="text"],
+    form input[type="email"],
+    form input[type="password"],
+    form input[type="number"],
+    form select,
+    form textarea {
+        width: 100%;
+        padding: 6px 8px;
+        margin-bottom: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+
+    form textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    form button[type="submit"] {
+        padding: 6px 12px;
+        margin-top: 8px;
+        font-size: 0.9em;
+        grid-column: 1 / -1;
+        justify-self: center;
+    }
+
+    /* Table styles */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 0.9em;
+    }
+
+    table th,
+    table td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+
+    /* Table button styles */
+    table button {
+        padding: 3px 6px;
+        margin: 0 2px;
+        font-size: 0.8em;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    table button.btn-info {
+        background-color: #4e73df;
+        color: white;
+        border: 1px solid #4e73df;
+    }
+
+    table button.btn-danger {
+        background-color: #e74a3b;
+        color: white;
+        border: 1px solid #e74a3b;
+    }
+
+    table button:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    table button:active {
+        transform: translateY(0);
+    }
+
+    /* Ensure buttons don't wrap */
+    table td:last-child {
+        white-space: nowrap;
+    }
+
+    /* Modal styles */
+    .modal-content {
+        max-width: 500px;
+        padding: 15px;
+    }
+
+    .modal-content form {
+        max-width: 100%;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    /* Search container */
+    .search-container {
+        margin: 10px 0;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .search-container input {
+        width: 100%;
+        padding: 6px 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+
+    /* Section headers */
+    .tab-content h2 {
+        font-size: 1.3em;
+        margin: 10px 0;
+    }
+
+    .tab-content h3 {
+        font-size: 1.1em;
+        margin: 10px 0;
+    }
+
+    /* Stats container */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin: 10px 0;
+    }
+
+    .stat-box {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+
+    .stat-value {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+
+    /* Charts container */
+    .charts-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin: 10px 0;
+    }
+
+    .chart-box {
+        padding: 10px;
+    }
     </style>
     <script>
     // Tab switching
@@ -387,6 +590,31 @@ try {
 
         // Update URL hash
         window.location.hash = tabName;
+    }
+
+    // Search functionality
+    function filterTable(inputId, tableId) {
+        const input = document.getElementById(inputId);
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById(tableId);
+        const tr = table.getElementsByTagName("tr");
+
+        for (let i = 0; i < tr.length; i++) {
+            let found = false;
+            const td = tr[i].getElementsByTagName("td");
+
+            for (let j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    const txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            tr[i].style.display = found ? "" : "none";
+        }
     }
 
     // Set active tab based on URL hash
@@ -654,27 +882,47 @@ try {
         </div>
         <div id="users" class="tab-content">
             <h2>Manage Users</h2>
+            <div class="search-container">
+                <input type="text" id="userSearch" onkeyup="filterTable('userSearch', 'usersTable')"
+                    placeholder="Search users...">
+            </div>
             <form method="POST" class="user-form" onsubmit="return validateUserForm(this)">
                 <h3>Add User</h3>
-                <label for="email">Email:</label>
-                <input type="email" name="email" required>
-                <label for="password">Password:</label>
-                <input type="password" name="password" required>
-                <label for="first_name">First Name:</label>
-                <input type="text" name="first_name" required>
-                <label for="last_name">Last Name:</label>
-                <input type="text" name="last_name" required>
-                <label for="dob">Date of Birth:</label>
-                <input type="text" id="dob" name="dob" required>
-                <label for="account_type">Account Type:</label>
-                <select name="account_type" required>
-                    <option value="Child">Child</option>
-                    <option value="Parent">Parent</option>
-                </select>
-                <button type="submit" name="add_user" class="btn-primary">Add User</button>
+                <div class="form-grid">
+                    <div>
+                        <label for="email">Email:</label>
+                        <input type="email" name="email" required>
+                    </div>
+                    <div>
+                        <label for="password">Password:</label>
+                        <input type="password" name="password" required>
+                    </div>
+                    <div>
+                        <label for="first_name">First Name:</label>
+                        <input type="text" name="first_name" required>
+                    </div>
+                    <div>
+                        <label for="last_name">Last Name:</label>
+                        <input type="text" name="last_name" required>
+                    </div>
+                    <div>
+                        <label for="dob">Date of Birth:</label>
+                        <input type="text" id="dob" name="dob" required>
+                    </div>
+                    <div>
+                        <label for="account_type">Account Type:</label>
+                        <select name="account_type" required>
+                            <option value="Child">Child</option>
+                            <option value="Parent">Parent</option>
+                        </select>
+                    </div>
+                    <div class="form-full-width">
+                        <button type="submit" name="add_user" class="btn-primary">Add User</button>
+                    </div>
+                </div>
             </form>
             <h3>Existing Users</h3>
-            <table>
+            <table id="usersTable">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -728,13 +976,28 @@ try {
         </div>
         <div id="notes" class="tab-content">
             <h2>Manage Finance Notes</h2>
+            <div class="search-container">
+                <input type="text" id="noteSearch" onkeyup="filterTable('noteSearch', 'notesTable')"
+                    placeholder="Search notes...">
+            </div>
             <form method="POST">
-                <h3>Add Finance Note</h3><label for="title">Title:</label><input type="text" name="title"
-                    required><label for="content">Content:</label><textarea name="content" required></textarea><button
-                    type="submit" name="add_note" class="btn-primary">Add Note</button>
+                <h3>Add Finance Note</h3>
+                <div class="form-grid">
+                    <div class="form-full-width">
+                        <label for="title">Title:</label>
+                        <input type="text" name="title" required>
+                    </div>
+                    <div class="form-full-width">
+                        <label for="content">Content:</label>
+                        <textarea name="content" required></textarea>
+                    </div>
+                    <div class="form-full-width">
+                        <button type="submit" name="add_note" class="btn-primary">Add Note</button>
+                    </div>
+                </div>
             </form>
             <h3>Existing Finance Notes</h3>
-            <table>
+            <table id="notesTable">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -780,17 +1043,40 @@ try {
         </div>
         <div id="quizzes" class="tab-content">
             <h2>Manage Quizzes</h2>
+            <div class="search-container">
+                <input type="text" id="quizSearch" onkeyup="filterTable('quizSearch', 'quizzesTable')"
+                    placeholder="Search quizzes...">
+            </div>
             <form method="POST">
-                <h3>Add Quiz</h3><label for="question">Question:</label><input type="text" name="question"
-                    required><label for="option_a">Option A:</label><input type="text" name="option_a" required><label
-                    for="option_b">Option
-                    B:</label><input type="text" name="option_b" required><label for="option_c">Option C:</label><input
-                    type="text" name="option_c" required><label for="correct_option">Correct Option
-                    (A/B/C):</label><input type="text" name="correct_option" required><button type="submit"
-                    name="add_quiz" class="btn-primary">Add Quiz</button>
+                <h3>Add Quiz</h3>
+                <div class="form-grid">
+                    <div class="form-full-width">
+                        <label for="question">Question:</label>
+                        <input type="text" name="question" required>
+                    </div>
+                    <div>
+                        <label for="option_a">Option A:</label>
+                        <input type="text" name="option_a" required>
+                    </div>
+                    <div>
+                        <label for="option_b">Option B:</label>
+                        <input type="text" name="option_b" required>
+                    </div>
+                    <div>
+                        <label for="option_c">Option C:</label>
+                        <input type="text" name="option_c" required>
+                    </div>
+                    <div>
+                        <label for="correct_option">Correct Option (A/B/C):</label>
+                        <input type="text" name="correct_option" required>
+                    </div>
+                    <div class="form-full-width">
+                        <button type="submit" name="add_quiz" class="btn-primary">Add Quiz</button>
+                    </div>
+                </div>
             </form>
             <h3>Existing Quizzes</h3>
-            <table>
+            <table id="quizzesTable">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -844,15 +1130,28 @@ try {
         </div>
         <div id="store" class="tab-content">
             <h2>Manage Store Items</h2>
+            <div class="search-container">
+                <input type="text" id="storeSearch" onkeyup="filterTable('storeSearch', 'storeTable')"
+                    placeholder="Search store items...">
+            </div>
             <form method="POST">
-                <h3>Add Item</h3><label for="item_name">Item Name:</label><input type="text" name="item_name"
-                    required><label for="item_price">Item
-                    Price:</label><input type="number" name="item_price" step="0.01" required><button type="submit"
-                    name="add_item" class="btn-primary">Add
-                    Item</button>
+                <h3>Add Item</h3>
+                <div class="form-grid">
+                    <div>
+                        <label for="item_name">Item Name:</label>
+                        <input type="text" name="item_name" required>
+                    </div>
+                    <div>
+                        <label for="item_price">Item Price:</label>
+                        <input type="number" name="item_price" step="0.01" required>
+                    </div>
+                    <div class="form-full-width">
+                        <button type="submit" name="add_item" class="btn-primary">Add Item</button>
+                    </div>
+                </div>
             </form>
             <h3>Existing Store Items</h3>
-            <table>
+            <table id="storeTable">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -898,8 +1197,12 @@ try {
         </div>
         <div id="messages" class="tab-content">
             <h2>Manage Messages</h2>
+            <div class="search-container">
+                <input type="text" id="messageSearch" onkeyup="filterTable('messageSearch', 'messagesTable')"
+                    placeholder="Search messages...">
+            </div>
             <h3>Messages</h3>
-            <table>
+            <table id="messagesTable">
                 <thead>
                     <tr>
                         <th>ID</th>

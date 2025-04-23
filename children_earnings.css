@@ -1,19 +1,5 @@
 @import url('base.css');
 
-/* Root Variables for Colors */
-:root {
-  --primary-color: #4CAF50;      /* Fresh Green */
-  --secondary-color: #FFC107;    /* Warm Yellow */
-  --accent-color: #FF5722;       /* Vibrant Orange */
-  --background-light: #F5F9FF;   /* Light Blue Background */
-  --text-dark: #2C3E50;          /* Dark Blue Text */
-  --text-light: #FFFFFF;         /* White Text */
-  --shadow-color: rgba(0, 0, 0, 0.1);
-  --card-background: #FFFFFF;
-  --error-color: #FF5252;
-  --success-color: #4CAF50;
-}
-
 body {
     font-family: 'Comic Sans MS', cursive, sans-serif;
     background-color: var(--background-light);
@@ -203,52 +189,92 @@ table tr:hover {
 .create-goal-form {
     background: linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%);
     border-radius: 12px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-.form-group {
+    padding: 1.5rem;
     margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.form-group label {
+.create-goal-form form {
+    display: grid;
+    gap: 1rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.create-goal-form label {
     display: block;
     color: var(--text-dark);
     font-weight: 600;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.3rem;
+    font-size: 1rem;
 }
 
-.form-group input {
+.create-goal-form input {
     width: 100%;
     padding: 0.8rem;
     border: 2px solid var(--secondary-color);
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.9);
 }
 
-.form-group input:focus {
+.create-goal-form input:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+    transform: translateY(-2px);
 }
 
 .create-goal-btn {
-    background: var(--primary-color);
-    color: var(--text-light);
+    background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+    color: white;
     border: none;
-    padding: 1rem 2rem;
+    padding: 0.8rem 1.5rem;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 0.5rem;
 }
 
 .create-goal-btn:hover {
-    background: #43A047;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+    background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+}
+
+.create-goal-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.delete-goal-btn {
+    background: linear-gradient(135deg, #FF5252 0%, #FF1744 100%);
+    color: var(--text-light);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 82, 82, 0.3);
+}
+
+.delete-goal-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    box-shadow: 0 6px 16px rgba(255, 82, 82, 0.4);
+    background: linear-gradient(135deg, #FF1744 0%, #FF5252 100%);
+}
+
+.delete-goal-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(255, 82, 82, 0.3);
 }
 
 /* Goal Display */

@@ -118,112 +118,126 @@ if ($current_goal && $current_goal['status'] === 'completed' && $current_goal['b
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>KidsSaving Earnings</title>
     <link rel="stylesheet" href="children_earnings.css">
 </head>
+
 <body>
-<aside class="sidebar">
-    <h2>🎮 KidsSaving</h2>
-    <ul>
-        <li><a href="children_dashboard.php">🏠 Home</a></li>
-        <li><a href="children_tasks.php">📝 Tasks</a></li>
-        <li><a href="children_earnings.php">💰 Earnings</a></li>
-        <li><a href="children_virtual_bank.php">🏦 Virtual Bank</a></li>
-        <li><a href="virtual_store.php">🛒 Virtual Store</a></li>
-        <li><a href="leaderboard.php">🏆 Leaderboard</a></li>
-        <li><a href="children_chat.php">💬 Chat</a></li>
-        <li><a href="children_account.php">👤 Account</a></li>
-        <li><a href="children_help.php">❓ Help</a></li>
-        <li><a href="children_logout.php">🚪 Log out</a></li>
-    </ul>
-</aside>
+    <aside class="sidebar">
+        <h2>🎮 KidsSaving</h2>
+        <ul>
+            <li><a href="children_dashboard.php">🏠 Home</a></li>
+            <li><a href="children_tasks.php">📝 Tasks</a></li>
+            <li><a href="children_earnings.php">💰 Earnings</a></li>
+            <li><a href="children_virtual_bank.php">🏦 Virtual Bank</a></li>
+            <li><a href="virtual_store.php">🛒 Virtual Store</a></li>
+            <li><a href="leaderboard.php">🏆 Leaderboard</a></li>
+            <li><a href="children_chat.php">💬 Chat</a></li>
+            <li><a href="children_account.php">👤 Account</a></li>
+            <li><a href="children_help.php">❓ Help</a></li>
+            <li><a href="children_logout.php">🚪 Log out</a></li>
+        </ul>
+    </aside>
 
-<div class="main-content">
-    <div class="container">
-        <h1>💰 Your Earnings: $<?= number_format($total_earnings, 2) ?></h1>
-        <?php if (isset($_SESSION['success'])): ?>
+    <div class="main-content">
+        <div class="container">
+            <h1>💰 Your Earnings: $<?= number_format($total_earnings, 2) ?></h1>
+            <?php if (isset($_SESSION['success'])): ?>
             <div class="message success"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
-        <?php endif; ?>
-        <?php if (isset($_SESSION['error'])): ?>
+            <?php endif; ?>
+            <?php if (isset($_SESSION['error'])): ?>
             <div class="message error"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
-        <?php endif; ?>
+            <?php endif; ?>
 
-        <div class="earnings-table">
-            <h2>Your Earnings History</h2>
-            <?php if ($earnings_result->num_rows > 0): ?>
+            <div class="earnings-table">
+                <h2>Your Earnings History</h2>
+                <?php if ($earnings_result->num_rows > 0): ?>
                 <table>
-                    <thead><tr><th>Source</th><th>Date</th><th>Amount</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                    <?php while ($row = $earnings_result->fetch_assoc()): ?>
+                        <?php while ($row = $earnings_result->fetch_assoc()): ?>
                         <tr>
                             <td><?= htmlspecialchars($row['source']) ?></td>
                             <td><?= date('M d, Y', strtotime($row['earned_date'])) ?></td>
                             <td>$<?= number_format($row['amount'], 2) ?></td>
                         </tr>
-                    <?php endwhile; ?>
+                        <?php endwhile; ?>
                     </tbody>
                 </table>
 
                 <?php if ($total_pages > 1): ?>
-                    <div class="pagination">
-                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                            <a href="?page=<?= $i ?>" class="pagination-btn <?= ($i === $page) ? 'active' : '' ?>"><?= $i ?></a>
-                        <?php endfor; ?>
-                    </div>
+                <div class="pagination">
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                    <a href="?page=<?= $i ?>" class="pagination-btn <?= ($i === $page) ? 'active' : '' ?>"><?= $i ?></a>
+                    <?php endfor; ?>
+                </div>
                 <?php endif; ?>
-            <?php else: ?>
+                <?php else: ?>
                 <p>No earnings recorded yet.</p>
-            <?php endif; ?>
-        </div>
-
-        <div class="earnings-goals">
-            <h2>Your Savings Goals</h2>
-            <div class="create-goal-form">
-                <form method="POST" action="children_earnings.php">
-                    <input type="hidden" name="create_goal" value="1">
-                    <label for="goal_name">Goal Name:</label>
-                    <input type="text" name="goal_name" id="goal_name" required>
-                    <label for="target_amount">Target Amount ($):</label>
-                    <input type="number" name="target_amount" id="target_amount" min="1" step="0.01" required>
-                    <button type="submit" class="create-goal-btn">Create Goal</button>
-                </form>
+                <?php endif; ?>
             </div>
 
-            <div class="current-goals">
-                <?php if ($current_goal): ?>
+            <div class="earnings-goals">
+                <h2>Your Savings Goals</h2>
+                <div class="create-goal-form">
+                    <form method="POST" action="children_earnings.php">
+                        <input type="hidden" name="create_goal" value="1">
+                        <label for="goal_name">Goal Name:</label>
+                        <input type="text" name="goal_name" id="goal_name" required>
+                        <label for="target_amount">Target Amount ($):</label>
+                        <input type="number" name="target_amount" id="target_amount" min="1" step="0.01" required>
+                        <button type="submit" class="create-goal-btn">Create Goal</button>
+                    </form>
+                </div>
+
+                <div class="current-goals">
+                    <?php if ($current_goal): ?>
                     <div class="goal">
-                        <form method="POST" action="children_earnings.php" onsubmit="return confirm('Delete this goal?');" style="text-align:right;">
+                        <form method="POST" action="children_earnings.php"
+                            onsubmit="return confirm('Delete this goal?');" style="text-align:right;">
                             <input type="hidden" name="delete_goal" value="1">
                             <input type="hidden" name="goal_id" value="<?= $current_goal['id'] ?>">
                             <button type="submit" class="delete-goal-btn">🗑️ Delete Goal</button>
                         </form>
                         <p class="goal-title"><?= htmlspecialchars($current_goal['goal_name']) ?> 🎯</p>
                         <p>Target: $<?= number_format($current_goal['target_amount'], 2) ?></p>
-                        <p>Progress: $<?= number_format($total_earnings, 2) ?> / $<?= number_format($current_goal['target_amount'], 2) ?></p>
+                        <p>Progress: $<?= number_format($total_earnings, 2) ?> /
+                            $<?= number_format($current_goal['target_amount'], 2) ?></p>
                         <progress value="<?= $total_earnings ?>" max="<?= $current_goal['target_amount'] ?>"></progress>
-                        <p class="progress-text"><?= number_format(min(($total_earnings / $current_goal['target_amount']) * 100, 100), 1) ?>% Complete</p>
+                        <p class="progress-text">
+                            <?= number_format(min(($total_earnings / $current_goal['target_amount']) * 100, 100), 1) ?>%
+                            Complete</p>
 
                         <?php if ($current_goal['status'] === 'completed'): ?>
-                            <div class="goal-completed">
-                                <p class="bonus-text">🎉 Goal Completed!</p>
-                                <?php if ($current_goal['bonus_earned'] > 0): ?>
-                                    <p class="bonus-amount">Bonus Earned: $<?= number_format($current_goal['bonus_earned'], 2) ?></p>
-                                <?php endif; ?>
-                            </div>
+                        <div class="goal-completed">
+                            <p class="bonus-text">🎉 Goal Completed!</p>
+                            <?php if ($current_goal['bonus_earned'] > 0): ?>
+                            <p class="bonus-amount">Bonus Earned:
+                                $<?= number_format($current_goal['bonus_earned'], 2) ?></p>
+                            <?php endif; ?>
+                        </div>
                         <?php endif; ?>
                     </div>
-                <?php else: ?>
+                    <?php else: ?>
                     <p>No active savings goal. Create one to start tracking your progress!</p>
-                <?php endif; ?>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<footer class="footer">
-    <p>&copy; 2025 KidsSaving. Learn, Save, and Have Fun!</p>
-</footer>
+    <footer class="footer">
+        <p>&copy; 2025 KidsSaving. Learn, Save, and Have Fun!</p>
+    </footer>
 </body>
+
 </html>

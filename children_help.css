@@ -75,16 +75,18 @@ body {
     transition: transform 0.3s ease;
 }
 
-.main-content {
-    margin-left: 280px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 40px;
-    background: linear-gradient(135deg, var(--main-bg-light) 0%, var(--background-light) 100%);
-    min-height: 100vh;
-    position: relative;
-    overflow: hidden;
+.sidebar ul li a:hover {
+    background-color: var(--accent-orange);
+    transform: translateX(5px);
+}
+
+.sidebar ul li a:hover::before {
+    transform: translateX(0);
+}
+
+.sidebar ul li a i {
+    margin-right: 10px;
+    font-size: 18px;
 }
 
 .main-content::before {

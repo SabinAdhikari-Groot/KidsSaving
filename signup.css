@@ -22,7 +22,7 @@ body {
     border-radius: 15px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 500px;
+    max-width: 800px;
     transition: transform 0.3s ease;
 }
 
@@ -172,7 +172,25 @@ button[type="submit"]:active {
     box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
 }
 
+/* Form layout */
+.form-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
 /* Responsive design */
+@media (max-width: 768px) {
+    .form-columns {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .signup-container {
+        max-width: 500px;
+    }
+}
+
 @media (max-width: 600px) {
     .signup-container {
         padding: 1.5rem;

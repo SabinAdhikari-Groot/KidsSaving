@@ -10,7 +10,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Retrieve and sanitize form data
     $username = htmlspecialchars(trim($_POST['username']));
     $password = $_POST['password'];
-    $userType = $_POST['user_type'];
     $terms = isset($_POST['terms']) ? 1 : 0; // Assuming user must accept terms
 
     // Check for admin login first
@@ -32,9 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($password)) {
         $errors[] = 'Password is required.';
     }
-    if (empty($userType)) {
-        $errors[] = 'User type is required.';
-    }
     if ($terms !== 1) {
         $errors[] = 'You must agree to the terms and services.';
     }
@@ -46,9 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 
-    // Query the database for the user with the provided username and user_type
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ? AND account_type = ?");
-    $stmt->bind_param("ss", $username, $userType);
+    // Query the database for the user with the provided username
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
@@ -62,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['user_type'] = $user['account_type'];
 
             // Redirect to the appropriate dashboard based on user type
-            if ($userType == 'Child') {
+            if ($user['account_type'] == 'Child') {
                 header('Location: children_dashboard.php'); // Child dashboard page
             } else {
                 header('Location: parent_dashboard.php'); // Parent dashboard page
@@ -76,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     } else {
         // If no user is found
-        $_SESSION['errors'] = ['No user found with this username and account type.'];
+        $_SESSION['errors'] = ['No user found with this email address.'];
         header('Location: login.html');
         exit();
     }

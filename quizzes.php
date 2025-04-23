@@ -107,27 +107,59 @@ $conn->close();
 
     function loadQuestion() {
         if (currentQuestionIndex >= questions.length) {
-            // Calculate points based on score (e.g., 10 points per correct answer)
-            let earnedPoints = score * 10;
-            
+            // Calculate percentage score
+            let percentage = (score / questions.length) * 100;
+
+            // Award points based on performance
+            let earnedPoints;
+            if (percentage >= 90) {
+                earnedPoints = 5; // Excellent performance
+            } else if (percentage >= 70) {
+                earnedPoints = 3; // Good performance
+            } else if (percentage >= 50) {
+                earnedPoints = 2; // Average performance
+            } else {
+                earnedPoints = 1; // Need improvement
+            }
+
             // Send score to server
             fetch('save_quiz_result.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    score: score,
-                    points: earnedPoints
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        score: score,
+                        points: earnedPoints
+                    })
                 })
-            });
-
-            document.getElementById("quiz-container").innerHTML = `
-                    <h2>Quiz Completed!</h2>
-                    <p>Your Score: ${score} / ${questions.length}</p>
-                    <p>Points Earned: ${earnedPoints}</p>
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    document.getElementById("quiz-container").innerHTML = `
+                    <h2>Quiz Completed! 🎉</h2>
+                    <div class="quiz-results">
+                        <p>Your Score: ${score} out of ${questions.length} questions correct (${percentage.toFixed(1)}%)</p>
+                        <p>Daily Reward: $${earnedPoints} added to your balance! 💰</p>
+                        <p class="note">Performance Tiers:</p>
+                        <ul class="reward-tiers">
+                            <li>90-100%: $5</li>
+                            <li>70-89%: $3</li>
+                            <li>50-69%: $2</li>
+                            <li>0-49%: $1</li>
+                        </ul>
+                        <p class="note">Come back tomorrow for another chance to earn rewards!</p>
+                    </div>
                     <button class="back-btn" onclick="goBack()">🏠 Back to Dashboard</button>
                 `;
+                })
+                .catch(error => {
+                    alert('Error saving quiz results. Please try again.');
+                    console.error('Error:', error);
+                });
             return;
         }
 
