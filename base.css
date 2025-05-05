@@ -86,6 +86,9 @@ body {
 .main-content {
     background: var(--main-gradient);
     color: var(--main-text);
+    min-height: 100vh;
+    padding-bottom: 80px; /* Space for footer */
+    position: relative;
 }
 
 .container {
@@ -149,4 +152,45 @@ input:focus, select:focus, textarea:focus {
 
 .highlight-text {
     color: var(--main-highlight);
+}
+
+/* Footer Base Styles */
+.footer {
+    text-align: center;
+    padding: 20px;
+    background: var(--text-light);
+    color: var(--text-secondary);
+    font-size: 14px;
+    position: fixed;
+    bottom: 0;
+    left: 280px; /* Account for sidebar width */
+    right: 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+}
+
+/* Responsive footer adjustments */
+@media (max-width: 768px) {
+    .footer {
+        left: 0;
+        position: relative;
+        margin-top: 20px;
+    }
+
+    .main-content {
+        padding-bottom: 20px;
+    }
+}
+
+/* Additional utility classes */
+.sticky-footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--text-light);
+    z-index: 100;
+}
+
+.content-wrapper {
+    min-height: calc(100vh - 80px); /* Account for footer height */
+    padding-bottom: 20px;
 } 

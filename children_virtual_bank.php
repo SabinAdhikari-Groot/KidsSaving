@@ -173,6 +173,7 @@ while ($row = $transactions_result->fetch_assoc()) {
         <h2>🎮 KidsSaving</h2>
         <ul>
             <li><a href="children_dashboard.php">🏠 Home</a></li>
+            <li><a href="children_learning.php">📚 Learning</a></li>
             <li><a href="children_tasks.php">📝 Tasks</a></li>
             <li><a href="children_earnings.php">💰 Earnings</a></li>
             <li><a href="children_virtual_bank.php">🏦 Virtual Bank</a></li>
@@ -243,10 +244,6 @@ while ($row = $transactions_result->fetch_assoc()) {
             </div>
         </div>
     </div>
-
-    <footer class="footer">
-        <p>&copy; 2025 KidsSaving. Learn, Save, and Have Fun!</p>
-    </footer>
 </body>
 
 </html>

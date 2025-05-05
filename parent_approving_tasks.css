@@ -13,7 +13,7 @@ body {
 .sidebar {
     width: 280px;
     background: var(--gradient-primary);
-    padding: 10px 15px;
+    padding: 20px;
     height: 100vh;
     color: var(--text-light);
     text-align: center;
@@ -32,9 +32,9 @@ body {
     font-size: 24px;
     margin-bottom: 30px;
     color: var(--text-light);
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     padding-bottom: 15px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
     width: 100%;
 }
 
@@ -46,7 +46,7 @@ body {
 }
 
 .sidebar ul li {
-    margin: 8px 0;
+    margin: 10px 0;
 }
 
 .sidebar ul li a {
@@ -55,12 +55,17 @@ body {
     font-size: 16px;
     display: flex;
     align-items: center;
-    padding: 12px 15px;
+    padding: 12px 20px;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+}
+
+.sidebar ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(5px);
 }
 
 .sidebar ul li a::before {
@@ -70,186 +75,97 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    background: var(--gradient-accent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
+.sidebar ul li a:hover::before {
+    opacity: 0.1;
+}
 
-/* Main Content */
 .main-content {
-    margin-left: 280px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 30px;
-    background-color: #000000;
+    margin-left: 270px;
+    padding: 2rem;
     min-height: 100vh;
+    background-color: var(--background-light);
+    background-image: linear-gradient(135deg, #F5F9FF 0%, #E8F4FF 100%);
 }
+
 
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 30px;
-    background-color: #000000;
-    border-radius: 15px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 h1 {
-    color: #ffffff;
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    font-weight: 600;
-    text-align: left;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    font-size: 1.8rem;
+    margin-bottom: 10px;
 }
 
 p {
-    color: #efefef;
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-    text-align: left;
+    margin-bottom: 20px;
+    color: #4b5563;
 }
 
-/* Task List */
-.task-list {
-    margin-top: 30px;
-    padding: 25px;
-    background-color: rgba(142, 145, 162, 0.1);
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    border: 1px solid #9daaf2;
-}
-
-table {
+/* Task Table */
+.task-list table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin-top: 20px;
-    background-color: rgba(0, 0, 0, 0.05);
-    border-radius: 10px;
-    overflow: hidden;
+    border-collapse: collapse;
 }
 
-th, td {
-    padding: 15px;
+.task-list th, .task-list td {
+    padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #9daaf2;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-th {
-    background-color: rgb(250, 250, 250);
-    color: #000000;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-    letter-spacing: 0.5px;
+.task-list th {
+    background-color: #f3f4f6;
+    color: #374151;
+    font-weight: bold;
 }
 
-td {
-    color: #ffffff;
-    font-size: 1rem;
-}
-
-tr:hover {
-    background-color: rgba(157, 170, 242, 0.15);
+.task-list tr:hover {
+    background-color: #f9fafb;
 }
 
 /* Buttons */
-.approve-btn {
-    padding: 8px 20px;
-    background-color: #13e027;
-    color: #000000;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.approve-btn:hover {
-    background-color: #f4db7d;
-    color: #1a2238;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-.reject-btn {
-    background-color: #ff4d4d;
-    color: white;
+.approve-btn, .reject-btn {
     padding: 6px 12px;
     border: none;
     border-radius: 5px;
-    margin-left: 5px;
+    font-size: 0.9rem;
     cursor: pointer;
+    margin-right: 5px;
+}
+
+.approve-btn {
+    background-color: #10b981;
+    color: white;
+}
+
+.reject-btn {
+    background-color: #ef4444;
+    color: white;
+}
+
+.approve-btn:hover {
+    background-color: #059669;
 }
 
 .reject-btn:hover {
-    background-color: #cc0000;
+    background-color: #dc2626;
 }
 
-/* Tables */
-input[type="text"] {
-    width: 100%; /* Makes it take full width of its container */
-    max-width: 500px; /* Limits the width to prevent it from becoming too large */
-    padding: 12px; /* Increases inner spacing */
-    font-size: 18px; /* Makes text inside larger */
-    border: 2px solid #4CAF50; /* Adds a clear border */
-    border-radius: 8px; /* Rounds the corners */
-    outline: none; /* Removes the default blue outline on focus */
-}
-
-input[type="text"]:focus {
-    border-color: #ff6f61; /* Changes border color when input is focused */
-    box-shadow: 0 0 8px rgba(255, 111, 97, 0.5); /* Adds a subtle glow effect */
-}
-
-/* Footer */
-.footer {
-    padding: 20px;
-    background-color: #ff6f61;
-    color: #fff;
-    font-size: 16px;
-    text-align: center;
-    width: 100%;
-    margin-top: auto;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        padding: 10px;
-    }
-
-    .main-content {
-        margin-left: 0;
-        padding: 15px;
-    }
-
-    .container {
-        padding: 20px;
-        border-radius: 10px;
-    }
-
-    h1 {
-        font-size: 2rem;
-    }
-
-    table {
-        display: block;
-        overflow-x: auto;
-    }
-
-    th, td {
-        padding: 12px;
-        font-size: 0.9rem;
-    }
-
-    .btn {
-        padding: 8px 15px;
-    }
+/* Success Message */
+.success {
+    background-color: #d1fae5;
+    color: #065f46;
+    padding: 10px 15px;
+    border-left: 5px solid #10b981;
+    margin-bottom: 20px;
+    border-radius: 5px;
 }

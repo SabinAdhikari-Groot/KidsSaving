@@ -43,8 +43,21 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
         }
         // Handle fetching messages
         elseif ($_POST['action'] == 'fetch' && $child_id) {
-            $stmt = $conn->prepare("SELECT * FROM chat_messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY timestamp ASC");
-            $stmt->bind_param("iiii", $parent_id, $child_id, $child_id, $parent_id);
+            $query = "SELECT * FROM chat_messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)";
+            $params = [$parent_id, $child_id, $child_id, $parent_id];
+            $types = "iiii";
+
+            // If last_timestamp is provided, only fetch newer messages
+            if (isset($_POST['last_timestamp'])) {
+                $query .= " AND timestamp > ?";
+                $params[] = $_POST['last_timestamp'];
+                $types .= "s";
+            }
+
+            $query .= " ORDER BY timestamp ASC";
+            
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param($types, ...$params);
             $stmt->execute();
             $result = $stmt->get_result();
             $messages = [];
@@ -153,21 +166,136 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
         const messageInput = document.getElementById('messageInput');
         const typingIndicator = document.getElementById('typingIndicator');
         const childSelect = document.getElementById('childSelect');
+        let lastMessageTimestamp = null;
+        let isNearBottom = true;
+        let isLoading = false;
 
-        // Load messages when page loads
-        loadMessages();
+        // Function to check if user is near bottom of chat
+        function isUserNearBottom() {
+            const threshold = 100; // pixels from bottom
+            return chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < threshold;
+        }
 
-        // Auto-refresh messages every 2 seconds
-        setInterval(loadMessages, 2000);
+        // Function to load messages
+        function loadMessages(initialLoad = false) {
+            if (isLoading) return;
+            isLoading = true;
+
+            const formData = new FormData();
+            formData.append('action', 'fetch');
+            if (childSelect) {
+                formData.append('child_id', childSelect.value);
+            }
+            if (lastMessageTimestamp && !initialLoad) {
+                formData.append('last_timestamp', lastMessageTimestamp);
+            }
+
+            fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(messages => {
+                    if (messages.length > 0) {
+                        const wasNearBottom = isUserNearBottom();
+
+                        // Clear chat box only on initial load or child change
+                        if (initialLoad) {
+                            chatBox.innerHTML =
+                                '<div class="typing-indicator" id="typingIndicator">Child is typing...</div>';
+                        }
+
+                        // Keep track of processed messages to avoid duplicates
+                        const processedMessages = new Set();
+
+                        messages.forEach(msg => {
+                            // Create a unique key for each message
+                            const messageKey = `${msg.sender_id}-${msg.timestamp}-${msg.message}`;
+
+                            // Skip if we've already processed this message
+                            if (processedMessages.has(messageKey)) return;
+                            processedMessages.add(messageKey);
+
+                            const messageClass = msg.sender_id == <?php echo $parent_id; ?> ?
+                                'sent' : 'received';
+                            const senderName = msg.sender_id == <?php echo $parent_id; ?> ? 'You' :
+                                childSelect.options[childSelect.selectedIndex].text.replace('💬 ',
+                                    '');
+
+                            // Create message group
+                            const messageGroup = document.createElement('div');
+                            messageGroup.className = `message ${messageClass}`;
+                            messageGroup.dataset.messageKey = messageKey;
+
+                            // Add sender header
+                            const header = document.createElement('div');
+                            header.className = 'header';
+                            header.innerHTML = `<strong>${senderName}</strong>`;
+                            messageGroup.appendChild(header);
+
+                            // Add message content
+                            const messageContent = document.createElement('p');
+                            messageContent.textContent = msg.message;
+                            messageGroup.appendChild(messageContent);
+
+                            // Add timestamp
+                            const timestamp = document.createElement('span');
+                            timestamp.className = 'message-time';
+                            timestamp.textContent = msg.timestamp;
+                            messageGroup.appendChild(timestamp);
+
+                            // Check if this message already exists in the chat
+                            const existingMessage = chatBox.querySelector(
+                                `[data-message-key="${messageKey}"]`);
+                            if (!existingMessage) {
+                                chatBox.appendChild(messageGroup);
+                            }
+                        });
+
+                        // Update last message timestamp
+                        lastMessageTimestamp = messages[messages.length - 1].timestamp;
+
+                        // Scroll to bottom only if user was already near bottom
+                        if (wasNearBottom || initialLoad) {
+                            chatBox.scrollTop = chatBox.scrollHeight;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading messages:', error);
+                })
+                .finally(() => {
+                    isLoading = false;
+                });
+        }
+
+        // Initial load of messages
+        loadMessages(true);
+
+        // Check for new messages every 2 seconds
+        const refreshInterval = setInterval(() => {
+            if (isUserNearBottom()) {
+                loadMessages();
+            }
+        }, 2000);
+
+        // Handle scroll events
+        chatBox.addEventListener('scroll', () => {
+            isNearBottom = isUserNearBottom();
+        });
 
         // Handle child selection change
         if (childSelect) {
             childSelect.addEventListener('change', function() {
-                loadMessages();
+                lastMessageTimestamp = null;
+                loadMessages(true);
             });
         }
 
-        // Handle form submission with AJAX
+        // Handle form submission
         chatForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -208,65 +336,10 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                 });
         });
 
-        // Function to load messages
-        function loadMessages() {
-            const formData = new FormData();
-            formData.append('action', 'fetch');
-            if (childSelect) {
-                formData.append('child_id', childSelect.value);
-            }
-
-            fetch(window.location.href, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(messages => {
-                    chatBox.innerHTML =
-                        '<div class="typing-indicator" id="typingIndicator">Child is typing...</div>';
-
-                    let currentSender = null;
-                    let messageGroup = null;
-
-                    messages.forEach(msg => {
-                        const messageClass = msg.sender_id == <?php echo $parent_id; ?> ? 'sent' :
-                            'received';
-                        const senderName = msg.sender_id == <?php echo $parent_id; ?> ? 'You' :
-                            childSelect.options[childSelect.selectedIndex].text.replace('💬 ', '');
-
-                        // Check if this message is from the same sender as the previous one
-                        if (currentSender !== msg.sender_id) {
-                            // Create new message group
-                            messageGroup = document.createElement('div');
-                            messageGroup.className = `message ${messageClass}`;
-
-                            // Add sender header
-                            const header = document.createElement('div');
-                            header.className = 'header';
-                            header.innerHTML = `<strong>${senderName}</strong>`;
-                            messageGroup.appendChild(header);
-
-                            chatBox.appendChild(messageGroup);
-                            currentSender = msg.sender_id;
-                        }
-
-                        // Add message content
-                        const content = document.createElement('div');
-                        content.className = 'content';
-                        content.innerHTML = `
-                        <p>${msg.message}</p>
-                        <span class="message-time">${msg.timestamp}</span>
-                    `;
-                        messageGroup.appendChild(content);
-                    });
-
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                })
-                .catch(error => console.error('Error loading messages:', error));
-        }
+        // Clean up interval when leaving the page
+        window.addEventListener('beforeunload', function() {
+            clearInterval(refreshInterval);
+        });
     });
     </script>
 </body>

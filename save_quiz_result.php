@@ -42,6 +42,7 @@ try {
     $score = (int)$data['score'];
     $points = (float)$data['points'];
     $attempt_date = date('Y-m-d');
+    $source = "Quiz completion";
 
     // Start transaction
     $conn->begin_transaction();
@@ -68,6 +69,19 @@ try {
         $stmt->bind_param("di", $points, $user_id);
         
         if (!$stmt->execute()) {
+            throw new Exception($stmt->error);
+        }
+        // Update earnings - Insert new earning record
+        $earnings = "INSERT INTO earnings (user_id, task_id, source, earned_date, amount) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($earnings);
+        if (!$stmt) {
+            throw new Exception($conn->error);
+        }
+
+        // Bind parameters (assuming types: int, int, string, string (date), double)
+        $stmt->bind_param("iissd", $user_id, $task_id, $source, $attempt_date, $points);
+
+        if (!$stmt->execute()) {    
             throw new Exception($stmt->error);
         }
 
