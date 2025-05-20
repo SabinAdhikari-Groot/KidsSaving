@@ -48,6 +48,13 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KidsSaving Quiz</title>
     <link rel="stylesheet" href="quizzes.css">
+    <style>
+    .answer-message {
+        margin: 10px 0;
+        font-weight: bold;
+        min-height: 20px;
+    }
+    </style>
 </head>
 
 <body>
@@ -88,6 +95,7 @@ $conn->close();
                         <input type="radio" id="option_c" name="answer" value="C">
                         <label for="option_c" id="label_c"></label>
                     </div>
+                    <div id="answer-message" class="answer-message"></div>
                     <button type="button" class="next-btn" onclick="nextQuestion()">Next</button>
                 </form>
                 <p id="score-text"></p>
@@ -96,10 +104,6 @@ $conn->close();
             </div>
         </div>
     </div>
-
-    <footer class="footer">
-        <p>&copy; 2025 KidsSaving. Learn, Save, and Have Fun!</p>
-    </footer>
 
     <script>
     let questions = <?php echo json_encode($questions); ?>;
@@ -173,11 +177,15 @@ $conn->close();
 
     function nextQuestion() {
         let selectedOption = document.querySelector('input[name="answer"]:checked');
+        let messageElement = document.getElementById('answer-message');
+
         if (!selectedOption) {
-            alert("Please select an answer!");
+            messageElement.textContent = "Please select an answer!";
+            messageElement.style.color = "#ff4444";
             return;
         }
 
+        messageElement.textContent = "";
         if (selectedOption.value === questions[currentQuestionIndex].correct_option) {
             score++;
         }

@@ -7,7 +7,7 @@ $parent_id = $_SESSION['user_id'];
 // Fetch children for dropdown
 $children_query = "SELECT u.id, u.first_name, u.last_name FROM users u
                   JOIN parent_children_connection pc ON pc.child_id = u.id
-                  WHERE pc.parent_id = ?";
+                  WHERE pc.parent_id = ? AND u.account_type = 'Child'";
 $stmt = $conn->prepare($children_query);
 $stmt->bind_param("i", $parent_id);
 $stmt->execute();
@@ -47,12 +47,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_task'])) {
     $stmt->execute();
 }
 
-// Fetch all tasks assigned by this parent
-$tasks_sql = "SELECT t.*, u.first_name, u.last_name FROM tasks t
+// Fetch tasks assigned by this parent
+$tasks_sql = "(SELECT t.*, u.first_name, u.last_name FROM tasks t
              JOIN users u ON t.assigned_to = u.id
-             WHERE t.assigned_by = ? ORDER BY t.created_at DESC";
+             WHERE t.assigned_by = ? AND t.status = 'approved'
+             ORDER BY t.created_at DESC LIMIT 5)
+             UNION
+             (SELECT t.*, u.first_name, u.last_name FROM tasks t
+             JOIN users u ON t.assigned_to = u.id
+             WHERE t.assigned_by = ? AND t.status IN ('pending', 'completed')
+             ORDER BY t.created_at DESC)";
 $stmt = $conn->prepare($tasks_sql);
-$stmt->bind_param("i", $parent_id);
+$stmt->bind_param("ii", $parent_id, $parent_id);
 $stmt->execute();
 $tasks_result = $stmt->get_result();
 ?>

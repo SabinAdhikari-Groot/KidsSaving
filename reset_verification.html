@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Reset Code - KidsSaving</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .verification-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+
+        .verification-message {
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .verification-code {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .verification-code input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+
+        .verification-code input:focus {
+            border-color: #3498db;
+            outline: none;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .timer {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .resend-button {
+            background: none;
+            border: none;
+            color: #3498db;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-bottom: 1.5rem;
+        }
+
+        .resend-button:disabled {
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .verify-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .verify-button:hover {
+            background-color: #2980b9;
+        }
+
+        .back-button {
+            background-color: #95a5a6;
+        }
+
+        .back-button:hover {
+            background-color: #7f8c8d;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+    <div class="verification-container">
+        <h2>Verify Reset Code</h2>
+        <p class="verification-message">
+            We've sent a verification code to your email address.<br>
+            Please enter the code below to reset your password.
+        </p>
+        <div class="verification-code">
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+            <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+        </div>
+        <div class="timer">Time remaining: <span id="countdown">00:00</span></div>
+        <button class="resend-button" id="resendButton" disabled>Resend Code</button>
+        <button class="verify-button" id="verifyButton">Verify Code</button>
+        <button class="verify-button back-button" onclick="window.location.href='forgot_password.html'">Back</button>
+        <div class="error-message" id="errorMessage"></div>
+    </div>
+
+    <script>
+        // Handle input fields
+        const inputs = document.querySelectorAll('.verification-code input');
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1) {
+                    if (index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Timer functionality
+        let timeLeft = 60; // 60 seconds
+        const countdownElement = document.getElementById('countdown');
+        const resendButton = document.getElementById('resendButton');
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            countdownElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft > 0) {
+                timeLeft--;
+                setTimeout(updateTimer, 1000);
+            } else {
+                resendButton.disabled = false;
+            }
+        }
+
+        updateTimer();
+
+        // Resend code functionality
+        resendButton.addEventListener('click', async () => {
+            try {
+                // Show loading overlay
+                document.querySelector('.loading-overlay').style.display = 'flex';
+                
+                const response = await fetch('send_verification.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${encodeURIComponent(sessionStorage.getItem('resetEmail'))}`
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    timeLeft = 60;
+                    updateTimer();
+                    resendButton.disabled = true;
+                    showError('New verification code sent!', false);
+                } else {
+                    showError(data.message);
+                }
+            } catch (error) {
+                showError('Failed to resend verification code');
+            } finally {
+                // Hide loading overlay
+                document.querySelector('.loading-overlay').style.display = 'none';
+            }
+        });
+
+        // Verify code functionality
+        document.getElementById('verifyButton').addEventListener('click', async () => {
+            const code = Array.from(inputs).map(input => input.value).join('');
+            
+            try {
+                // Show loading overlay
+                document.querySelector('.loading-overlay').style.display = 'flex';
+                
+                const response = await fetch('verify_reset_code.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `code=${code}&email=${encodeURIComponent(sessionStorage.getItem('resetEmail'))}`
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    window.location.href = 'reset_password.html';
+                } else {
+                    showError(data.message);
+                }
+            } catch (error) {
+                showError('Verification failed');
+            } finally {
+                // Hide loading overlay
+                document.querySelector('.loading-overlay').style.display = 'none';
+            }
+        });
+
+        function showError(message, isError = true) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            errorElement.style.color = isError ? '#e74c3c' : '#27ae60';
+        }
+    </script>
+</body>
+</html> 

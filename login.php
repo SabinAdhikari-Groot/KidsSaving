@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['user_id'] = 1;
         $_SESSION['user_email'] = 'admin';
         $_SESSION['user_type'] = 'Admin';
-        header('Location: admin_dashboard.php');
+        echo json_encode(['success' => true, 'redirect' => 'admin_dashboard.php']);
         exit();
     }
 
@@ -35,10 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors[] = 'You must agree to the terms and services.';
     }
 
-    // If there are validation errors, display them
+    // If there are validation errors, return them
     if (!empty($errors)) {
-        $_SESSION['errors'] = $errors;
-        header('Location: login.php');
+        echo json_encode(['success' => false, 'message' => implode(', ', $errors)]);
         exit();
     }
 
@@ -57,23 +56,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_type'] = $user['account_type'];
 
-            // Redirect to the appropriate dashboard based on user type
-            if ($user['account_type'] == 'Child') {
-                header('Location: children_dashboard.php'); // Child dashboard page
-            } else {
-                header('Location: parent_dashboard.php'); // Parent dashboard page
-            }
+            // Return success with appropriate redirect
+            $redirect = $user['account_type'] == 'Child' ? 'children_dashboard.php' : 'parent_dashboard.php';
+            echo json_encode(['success' => true, 'redirect' => $redirect]);
             exit();
         } else {
             // If password is incorrect
-            $_SESSION['errors'] = ['Incorrect password. Please try again.'];
-            header('Location: login.html');
+            echo json_encode(['success' => false, 'message' => 'Incorrect email or password.']);
             exit();
         }
     } else {
         // If no user is found
-        $_SESSION['errors'] = ['No user found with this email address.'];
-        header('Location: login.html');
+        echo json_encode(['success' => false, 'message' => 'Incorrect email or password.']);
         exit();
     }
 }

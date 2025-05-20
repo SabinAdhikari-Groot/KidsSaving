@@ -89,6 +89,7 @@ body {
     font-size: 18px;
 }
 
+
 .main-content {
     margin-left: 280px;
     flex-grow: 1;
@@ -192,16 +193,16 @@ button:hover {
 }
 
 .footer {
-    padding: 20px 30px;
-    background: linear-gradient(to right, #00acc1, #26c6da);
-    color: #ffffff;
+    padding: 25px;
+    background: linear-gradient(135deg, #1a2238 0%, #2a3a5a 100%);
+    color: #f4db7d;
     font-size: 16px;
     text-align: center;
     width: 100%;
     margin-top: auto;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
     position: relative;
     z-index: 100;
-    box-shadow: 0 -4px 12px rgba(0, 188, 212, 0.15);
 }
 
 .footer::before {
@@ -210,37 +211,11 @@ button:hover {
     top: 0;
     left: 0;
     right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0),
-        rgba(255, 255, 255, 0.5),
-        rgba(255, 255, 255, 0)
-    );
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #f4db7d, transparent);
 }
 
 .footer p {
     margin: 0;
-    line-height: 1.5;
-    font-weight: 500;
-}
-
-.footer a {
-    color: #ffffff;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    padding: 2px 5px;
-    border-radius: 4px;
-}
-
-.footer a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    text-decoration: none;
-}
-
-@media (max-width: 768px) {
-    .footer {
-        padding: 15px 20px;
-        font-size: 14px;
-    }
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }

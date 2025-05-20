@@ -9,7 +9,7 @@
 <body>
     <div class="login-container">
         <h2>Login</h2>
-        <form id="loginForm" action="login.php" method="POST">
+        <form id="loginForm" method="POST">
             <label for="username">Email</label>
             <input type="text" id="username" name="username" required>
             
@@ -26,10 +26,10 @@
         
         <!-- Additional Links -->
         <div class="links">
-            <a href="forgot-password.php">Forgotten password?</a>
+            <a href="forgot_password.html">Forgotten password?</a>
             <p>Don't have an account? <a href="signup.html">Sign up</a></p>
         </div>
-        
+        <button class="home-btn" onclick="window.location.href='index.html'">Back to Homepage</button>
         <div id="error" class="error"></div>
     </div>
     

@@ -21,8 +21,8 @@ if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     $parent_id = $row['parent_id'];
 } else {
-    // No parent connected - handle this case appropriately
-    die("No parent connected to this account.");
+    // No parent connected - show user-friendly message
+    $error_message = "No parent connected to this account.";
 }
 
 // Handle AJAX requests
@@ -96,6 +96,26 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
         margin: 5px 0;
         display: none;
     }
+
+    .error-container {
+        text-align: center;
+        padding: 50px 20px;
+        background-color: #fff3f3;
+        border-radius: 8px;
+        margin: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .error-message {
+        color: #d32f2f;
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+
+    .error-help {
+        color: #666;
+        margin-bottom: 15px;
+    }
     </style>
 </head>
 
@@ -120,6 +140,15 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     <div class="main-content">
         <div class="container">
             <h1>💬 Chat</h1>
+            <?php if (isset($error_message)): ?>
+            <div class="error-container">
+                <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
+                <div class="error-help">
+                    Connect your account with your parents in the account section by simply entering your parents email
+                    and clicking on connect button.
+                </div>
+            </div>
+            <?php else: ?>
             <p>Communicate with your parents and stay up-to-date with reminders, goals, and more!</p>
 
             <div class="chat-box" id="chatBox">
@@ -133,12 +162,9 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                     <button type="submit">Send</button>
                 </div>
             </form>
+            <?php endif; ?>
         </div>
     </div>
-
-    <footer class="footer">
-        <p>&copy; 2025 KidsSaving. Learn, Save, and Have Fun!</p>
-    </footer>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {

@@ -262,15 +262,6 @@ button:hover {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* ===== Footer ===== */
-.footer {
-    padding: 25px;
-    background: var(--gradient-primary);
-    color: var(--text-light);
-    text-align: center;
-    margin-top: auto;
-}
-
 /* ===== Message Alerts ===== */
 .message {
     padding: 15px 25px;

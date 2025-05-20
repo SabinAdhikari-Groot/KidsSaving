@@ -19,9 +19,90 @@
         .input-error {
             border-color: red;
         }
+        .radio-group {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 5px;
+        }
+        .radio-group.error {
+            border-color: red;
+        }
+        .radio-group label {
+            margin-right: 20px;
+        }
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .password-requirements {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 4px;
+        }
+        .requirement {
+            margin: 2px 0;
+        }
+        .requirement.met {
+            color: #27ae60;
+        }
+        .requirement.unmet {
+            color: #e74c3c;
+        }
+        .required {
+            color: red;
+            margin-left: 4px;
+        }
+        .button {
+            display: block;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        .button:hover {
+            background-color: #2980b9;
+        }
+        .back-button {
+            background-color: #95a5a6;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        .back-button:hover {
+            background-color: #7f8c8d;
+        }
     </style>
 </head>
 <body>
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
     <div class="signup-container">
         <h2>Sign Up</h2>
         <form id="signupForm" action="signup.php" method="POST">
@@ -37,6 +118,12 @@
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password" required>
                         <span class="error-message" id="password-error"></span>
+                        <div class="password-requirements" id="password-requirements">
+                            <div class="requirement" id="length-req">8-64 characters long</div>
+                            <div class="requirement" id="number-req">At least 1 number</div>
+                            <div class="requirement" id="special-req">At least 1 special character (!@#$%^&*)</div>
+                            <div class="requirement" id="capital-req">At least 1 capital letter</div>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -68,11 +155,11 @@
             </div>
             
             <div class="form-group">
-                <label>Account for</label>
+                <label>Account for <span class="required">*</span></label>
                 <div class="radio-group">
-                    <input type="radio" id="child" name="account-type" value="Child" required>
+                    <input type="radio" id="child" name="account-type" value="Child">
                     <label for="child">Child</label>
-                    <input type="radio" id="parent" name="account-type" value="Parent" required>
+                    <input type="radio" id="parent" name="account-type" value="Parent">
                     <label for="parent">Parent</label>
                 </div>
                 <span class="error-message" id="account-type-error"></span>
@@ -87,6 +174,7 @@
             </div>
             
             <button type="submit">Sign Up</button>
+            <button type="button" class="button back-button" onclick="window.location.href='login.html'">Back to Login</button>
         </form>
     </div>
     <script>
@@ -94,6 +182,28 @@
             dateFormat: "Y/m/d",
             maxDate: "today",
             allowInput: true
+        });
+
+        // Restore form data if returning from verification page
+        window.addEventListener('load', function() {
+            const pendingData = sessionStorage.getItem('pendingSignupData');
+            if (pendingData) {
+                const formData = JSON.parse(pendingData);
+                // Restore all form fields
+                Object.entries(formData).forEach(([key, value]) => {
+                    const input = document.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        if (input.type === 'radio') {
+                            const radio = document.querySelector(`[name="${key}"][value="${value}"]`);
+                            if (radio) radio.checked = true;
+                        } else if (input.type === 'checkbox') {
+                            input.checked = value === 'on';
+                        } else {
+                            input.value = value;
+                        }
+                    }
+                });
+            }
         });
 
         document.getElementById('signupForm').addEventListener('submit', function(e) {
@@ -108,6 +218,7 @@
             document.querySelectorAll('input').forEach(el => {
                 el.classList.remove('input-error');
             });
+            document.querySelector('.radio-group').classList.remove('error');
 
             // Email validation
             const email = document.getElementById('email');
@@ -119,8 +230,9 @@
 
             // Password validation
             const password = document.getElementById('password');
-            if (password.value.length < 8) {
-                showError(password, 'password-error', 'Password must be at least 8 characters long');
+            const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[A-Z])(?=.*[a-z]).{8,64}$/;
+            if (!passwordRegex.test(password.value)) {
+                showError(password, 'password-error', 'Password must be 8-64 characters long and contain at least 1 number, 1 special character (!@#$%^&*), and 1 capital letter');
                 isValid = false;
             }
 
@@ -152,9 +264,19 @@
 
             // Account type validation
             const accountType = document.querySelector('input[name="account-type"]:checked');
+            const radioGroup = document.querySelector('.radio-group');
+            const accountTypeError = document.getElementById('account-type-error');
+            
             if (!accountType) {
-                showError(document.querySelector('.radio-group'), 'account-type-error', 'Please select an account type');
+                radioGroup.classList.add('error');
+                accountTypeError.textContent = 'Please select an account type';
+                accountTypeError.style.display = 'block';
                 isValid = false;
+                // Focus the first radio button
+                document.getElementById('child').focus();
+            } else {
+                radioGroup.classList.remove('error');
+                accountTypeError.style.display = 'none';
             }
 
             // Terms validation
@@ -165,35 +287,68 @@
             }
 
             if (isValid) {
+                // Show loading overlay
+                document.querySelector('.loading-overlay').style.display = 'flex';
+                
                 // Create FormData object
                 const formData = new FormData(this);
+                const emailValue = formData.get('email');
 
-                // Send form data to server
-                fetch('signup.php', {
+                // First, check if email already exists
+                fetch('check_email.php', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${encodeURIComponent(emailValue)}`
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        // Show success message and redirect
-                        alert(data.message);
-                        window.location.href = data.redirect;
+                    if (data.exists) {
+                        // Hide loading overlay
+                        document.querySelector('.loading-overlay').style.display = 'none';
+                        showError(document.getElementById('email'), 'email-error', 'Email address is already registered.');
                     } else {
-                        // Display errors from server
-                        Object.keys(data.errors).forEach(field => {
-                            const input = document.getElementById(field);
-                            if (input) {
-                                showError(input, `${field}-error`, data.errors[field]);
-                            } else if (field === 'general') {
-                                alert(data.errors[field]);
+                        // Email does not exist, proceed to send verification code
+                         fetch('send_verification.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: `email=${encodeURIComponent(emailValue)}`
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Store form data in sessionStorage
+                                const formDataObj = {};
+                                formData.forEach((value, key) => {
+                                    formDataObj[key] = value;
+                                });
+                                sessionStorage.setItem('pendingSignupData', JSON.stringify(formDataObj));
+                                sessionStorage.setItem('pendingEmail', emailValue);
+                                
+                                // Redirect to verification page
+                                window.location.href = 'verify_email.html';
+                            } else {
+                                // Hide loading overlay
+                                document.querySelector('.loading-overlay').style.display = 'none';
+                                showError(document.getElementById('email'), 'email-error', data.message);
                             }
+                        })
+                        .catch(error => {
+                            // Hide loading overlay
+                            document.querySelector('.loading-overlay').style.display = 'none';
+                            console.error('Error sending verification code:', error);
+                            showError(document.getElementById('email'), 'email-error', 'An error occurred while sending verification code. Please try again.');
                         });
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred. Please try again.');
+                    // Hide loading overlay
+                    document.querySelector('.loading-overlay').style.display = 'none';
+                    console.error('Error checking email existence:', error);
+                    showError(document.getElementById('email'), 'email-error', 'An error occurred while checking email. Please try again.');
                 });
             }
         });
@@ -211,6 +366,67 @@
                 if (this.value.trim() === '') {
                     const errorId = this.id + '-error';
                     showError(this, errorId, 'This field is required');
+                }
+            });
+        });
+
+        // Real-time password validation
+        const password = document.getElementById('password');
+        const requirements = {
+            length: document.getElementById('length-req'),
+            number: document.getElementById('number-req'),
+            special: document.getElementById('special-req'),
+            capital: document.getElementById('capital-req')
+        };
+
+        password.addEventListener('input', function() {
+            const value = this.value;
+            
+            // Check length
+            if (value.length >= 8 && value.length <= 64) {
+                requirements.length.classList.add('met');
+                requirements.length.classList.remove('unmet');
+            } else {
+                requirements.length.classList.add('unmet');
+                requirements.length.classList.remove('met');
+            }
+
+            // Check for number
+            if (/\d/.test(value)) {
+                requirements.number.classList.add('met');
+                requirements.number.classList.remove('unmet');
+            } else {
+                requirements.number.classList.add('unmet');
+                requirements.number.classList.remove('met');
+            }
+
+            // Check for special character
+            if (/[!@#$%^&*]/.test(value)) {
+                requirements.special.classList.add('met');
+                requirements.special.classList.remove('unmet');
+            } else {
+                requirements.special.classList.add('unmet');
+                requirements.special.classList.remove('met');
+            }
+
+            // Check for capital letter
+            if (/[A-Z]/.test(value)) {
+                requirements.capital.classList.add('met');
+                requirements.capital.classList.remove('unmet');
+            } else {
+                requirements.capital.classList.add('unmet');
+                requirements.capital.classList.remove('met');
+            }
+        });
+
+        // Add real-time validation for radio buttons
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const radioGroup = document.querySelector('.radio-group');
+                const accountTypeError = document.getElementById('account-type-error');
+                if (document.querySelector('input[name="account-type"]:checked')) {
+                    radioGroup.classList.remove('error');
+                    accountTypeError.style.display = 'none';
                 }
             });
         });

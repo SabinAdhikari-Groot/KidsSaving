@@ -13,7 +13,7 @@ $parent_id = $_SESSION['user_id'];
 // Fetch children connected to this parent
 $children_query = "SELECT u.id, u.first_name, u.last_name FROM users u
                   JOIN parent_children_connection pc ON pc.child_id = u.id
-                  WHERE pc.parent_id = ?";
+                  WHERE pc.parent_id = ? AND u.account_type = 'Child'";
 $stmt = $conn->prepare($children_query);
 $stmt->bind_param("i", $parent_id);
 $stmt->execute();
@@ -154,10 +154,6 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
             <?php endif; ?>
         </div>
     </div>
-
-    <footer class="footer">
-        <p>&copy; <?= date('Y') ?> KidsSaving | Teaching Financial Responsibility Through Fun</p>
-    </footer>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {

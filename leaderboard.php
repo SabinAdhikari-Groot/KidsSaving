@@ -16,6 +16,7 @@ $sql = "SELECT u.id as user_id,
                SUM(e.amount) as total_earnings
         FROM users u
         LEFT JOIN earnings e ON u.id = e.user_id
+        WHERE u.account_type = 'Child'
         GROUP BY u.id, u.first_name, u.last_name
         ORDER BY total_earnings DESC
         LIMIT 5";
@@ -120,9 +121,6 @@ $stmt->close();
         </div>
     </div>
 
-    <footer class="footer">
-        <p>&copy; 2025 KidsSaving. Learn, Save, and Have Fun!</p>
-    </footer>
 </body>
 
 </html>

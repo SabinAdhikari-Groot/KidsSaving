@@ -7,7 +7,7 @@ $parent_id = $_SESSION['user_id'];
 // Fetch child IDs and names associated with the parent
 $children_query = "SELECT u.id, u.first_name, u.last_name FROM users u
                   JOIN parent_children_connection pc ON pc.child_id = u.id
-                  WHERE pc.parent_id = ?";
+                  WHERE pc.parent_id = ? AND u.account_type = 'Child'";
 $stmt = $conn->prepare($children_query);
 $stmt->bind_param("i", $parent_id);
 $stmt->execute();
@@ -23,7 +23,7 @@ $earnings_summary = [];
 if (!empty($children)) {
     $child_ids = array_keys($children);
     $placeholders = implode(',', array_fill(0, count($child_ids), '?'));
-    
+
     // Get total earnings for each child
     $summary_query = "SELECT user_id, SUM(amount) as total_earnings FROM earnings 
                      WHERE user_id IN ($placeholders) GROUP BY user_id";
@@ -31,7 +31,7 @@ if (!empty($children)) {
     $stmt->bind_param(str_repeat("i", count($child_ids)), ...$child_ids);
     $stmt->execute();
     $summary_result = $stmt->get_result();
-    
+
     while ($row = $summary_result->fetch_assoc()) {
         $earnings_summary[$row['user_id']] = $row['total_earnings'];
     }
@@ -82,7 +82,7 @@ if (!empty($children)) {
     <div class="main-content">
         <div class="container">
             <h1>💰 Children's Earnings</h1>
-            <p>Track your children's earnings and progress.</p>
+            <p> Track your children's earnings and progress.</p>
 
             <!-- Earnings Summary -->
             <div class="earnings-summary">

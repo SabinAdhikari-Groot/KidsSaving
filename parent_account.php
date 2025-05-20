@@ -236,10 +236,6 @@ $full_name = htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
             </form>
         </div>
     </div>
-
-    <footer class="footer">
-        <p>&copy; 2025 KidsSaving. Learn, Save, and Have Fun!</p>
-    </footer>
 </body>
 
 </html>

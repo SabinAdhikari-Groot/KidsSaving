@@ -71,16 +71,27 @@ try {
         if (!$stmt->execute()) {
             throw new Exception($stmt->error);
         }
+
+        // Update current goal's earnings if exists
+        $update_goal = "UPDATE savings_goals SET current_earnings = current_earnings + ? WHERE user_id = ? AND status = 'active'";
+        $stmt = $conn->prepare($update_goal);
+        if (!$stmt) {
+            throw new Exception($conn->error);
+        }
+        $stmt->bind_param("di", $points, $user_id);
+        
+        if (!$stmt->execute()) {
+            throw new Exception($stmt->error);
+        }
+
         // Update earnings - Insert new earning record
-        $earnings = "INSERT INTO earnings (user_id, task_id, source, earned_date, amount) VALUES (?, ?, ?, ?, ?)";
+        $earnings = "INSERT INTO earnings (user_id, source, earned_date, amount) VALUES (?, 'Quiz completion', ?, ?)";
         $stmt = $conn->prepare($earnings);
         if (!$stmt) {
             throw new Exception($conn->error);
         }
-
-        // Bind parameters (assuming types: int, int, string, string (date), double)
-        $stmt->bind_param("iissd", $user_id, $task_id, $source, $attempt_date, $points);
-
+        $stmt->bind_param("isd", $user_id, $attempt_date, $points);
+        
         if (!$stmt->execute()) {    
             throw new Exception($stmt->error);
         }

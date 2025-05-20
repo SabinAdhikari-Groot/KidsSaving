@@ -10,11 +10,69 @@ if (!isset($_SESSION['user_id'])) {
 
 $parent_id = $_SESSION['user_id'];
 
+// Check for orphaned child accounts and clean up
+$cleanup_sql = "SELECT pcr.child_id 
+                FROM parent_children_connection pcr 
+                LEFT JOIN users u ON pcr.child_id = u.id 
+                WHERE pcr.parent_id = ? AND u.id IS NULL";
+$stmt = $conn->prepare($cleanup_sql);
+$stmt->bind_param("i", $parent_id);
+$stmt->execute();
+$orphaned_children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+if (!empty($orphaned_children)) {
+    $conn->begin_transaction();
+    try {
+        foreach ($orphaned_children as $child) {
+            $child_id = $child['child_id'];
+
+            // Delete from parent_children_connection
+            $stmt = $conn->prepare("DELETE FROM parent_children_connection WHERE child_id = ?");
+            $stmt->bind_param("i", $child_id);
+            $stmt->execute();
+
+            // Delete from tasks
+            $stmt = $conn->prepare("DELETE FROM tasks WHERE assigned_to = ?");
+            $stmt->bind_param("i", $child_id);
+            $stmt->execute();
+
+            // Delete from earnings
+            $stmt = $conn->prepare("DELETE FROM earnings WHERE user_id = ?");
+            $stmt->bind_param("i", $child_id);
+            $stmt->execute();
+
+            // Delete from user_earnings
+            $stmt = $conn->prepare("DELETE FROM user_earnings WHERE user_id = ?");
+            $stmt->bind_param("i", $child_id);
+            $stmt->execute();
+
+            // Delete from bank_accounts
+            $stmt = $conn->prepare("DELETE FROM bank_accounts WHERE id = ?");
+            $stmt->bind_param("i", $child_id);
+            $stmt->execute();
+
+            // Delete from savings_goals
+            $stmt = $conn->prepare("DELETE FROM savings_goals WHERE user_id = ?");
+            $stmt->bind_param("i", $child_id);
+            $stmt->execute();
+
+            // Delete from transactions
+            $stmt = $conn->prepare("DELETE FROM transactions WHERE account_id = ?");
+            $stmt->bind_param("i", $child_id);
+            $stmt->execute();
+        }
+        $conn->commit();
+    } catch (Exception $e) {
+        $conn->rollback();
+        // Log error if needed
+    }
+}
+
 // Fetch children of the logged-in parent
 $sql = "SELECT u.id, u.first_name, u.last_name 
         FROM users u
         INNER JOIN parent_children_connection pcr ON u.id = pcr.child_id
-        WHERE pcr.parent_id = ?";
+        WHERE pcr.parent_id = ? AND u.account_type = 'Child'";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $parent_id);
 $stmt->execute();
@@ -30,9 +88,49 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <title>Parent Dashboard - KidsSaving</title>
     <link rel="stylesheet" href="parent_dashboard.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        flex-direction: column;
+    }
+
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    </style>
 </head>
 
 <body>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Loading dashboard...</p>
+    </div>
+
     <aside class="sidebar">
         <h2>👨‍👩‍👧‍👦 Parent Dashboard</h2>
         <ul>
@@ -107,7 +205,7 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                     <td>$" . number_format($savings, 2) . "</td>
                                   </tr>";
                         }
-                        ?>
+?>
                     </tbody>
                 </table>
             </div>
@@ -123,55 +221,59 @@ $children = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 </div>
             </div>
         </div>
-        <footer class="footer">
-            <p>&copy; 2025 KidsSaving. Teach, Track, and Guide!</p>
-        </footer>
     </div>
 
     <script>
+    // Hide loading overlay when page is fully loaded
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }, 500); // Small delay to ensure smooth transition
+    });
+
     // Prepare data for the earnings chart
     const earningsData = <?php
             $earningsChartData = array();
-            foreach ($children as $child) {
-                $child_id = $child['id'];
-                $child_name = $child['first_name'] . ' ' . $child['last_name'];
-                
-                $sql_earnings = "SELECT total_earnings FROM user_earnings WHERE user_id = ?";
-                $stmt = $conn->prepare($sql_earnings);
-                $stmt->bind_param("i", $child_id);
-                $stmt->execute();
-                $earnings_result = $stmt->get_result()->fetch_assoc();
-                $earnings = $earnings_result['total_earnings'] ?? 0;
-                
-                $earningsChartData[] = array(
-                    'name' => $child_name,
-                    'earnings' => $earnings
-                );
-            }
-            echo json_encode($earningsChartData);
-        ?>;
+foreach ($children as $child) {
+    $child_id = $child['id'];
+    $child_name = $child['first_name'] . ' ' . $child['last_name'];
+
+    $sql_earnings = "SELECT total_earnings FROM user_earnings WHERE user_id = ?";
+    $stmt = $conn->prepare($sql_earnings);
+    $stmt->bind_param("i", $child_id);
+    $stmt->execute();
+    $earnings_result = $stmt->get_result()->fetch_assoc();
+    $earnings = $earnings_result['total_earnings'] ?? 0;
+
+    $earningsChartData[] = array(
+        'name' => $child_name,
+        'earnings' => $earnings
+    );
+}
+echo json_encode($earningsChartData);
+?>;
 
     // Prepare data for the savings chart
     const savingsData = <?php
-            $savingsChartData = array();
-            foreach ($children as $child) {
-                $child_id = $child['id'];
-                $child_name = $child['first_name'] . ' ' . $child['last_name'];
-                
-                $sql_savings = "SELECT balance FROM bank_accounts WHERE id = ?";
-                $stmt = $conn->prepare($sql_savings);
-                $stmt->bind_param("i", $child_id);
-                $stmt->execute();
-                $savings_result = $stmt->get_result()->fetch_assoc();
-                $savings = $savings_result['balance'] ?? 0;
-                
-                $savingsChartData[] = array(
-                    'name' => $child_name,
-                    'savings' => $savings
-                );
-            }
-            echo json_encode($savingsChartData);
-        ?>;
+    $savingsChartData = array();
+foreach ($children as $child) {
+    $child_id = $child['id'];
+    $child_name = $child['first_name'] . ' ' . $child['last_name'];
+
+    $sql_savings = "SELECT balance FROM bank_accounts WHERE id = ?";
+    $stmt = $conn->prepare($sql_savings);
+    $stmt->bind_param("i", $child_id);
+    $stmt->execute();
+    $savings_result = $stmt->get_result()->fetch_assoc();
+    $savings = $savings_result['balance'] ?? 0;
+
+    $savingsChartData[] = array(
+        'name' => $child_name,
+        'savings' => $savings
+    );
+}
+echo json_encode($savingsChartData);
+?>;
 
     // Create the earnings chart
     const earningsCtx = document.getElementById('earningsChart').getContext('2d');

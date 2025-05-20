@@ -11,31 +11,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $task_id = intval($_POST['task_id']);
         $user_id = intval($_POST['user_id']);
 
-        // Get task value
-        $stmt = $conn->prepare("SELECT task_value FROM tasks WHERE id = ?");
+        // Get task value and name
+        $stmt = $conn->prepare("SELECT task_value, task_name FROM tasks WHERE id = ?");
         $stmt->bind_param("i", $task_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $task = $result->fetch_assoc();
         $task_value = $task['task_value'];
+        $task_name = $task['task_name'];
 
-        // Update task status to approved
-        $stmt = $conn->prepare("UPDATE tasks SET status='approved' WHERE id=?");
-        $stmt->bind_param("i", $task_id);
-        $stmt->execute();
+        // Start transaction
+        $conn->begin_transaction();
+        try {
+            // Update task status to approved
+            $stmt = $conn->prepare("UPDATE tasks SET status='approved' WHERE id=?");
+            $stmt->bind_param("i", $task_id);
+            $stmt->execute();
 
-        // Insert earnings entry
-        $stmt = $conn->prepare("INSERT INTO earnings (user_id, task_id, source, earned_date, amount) 
-                                VALUES (?, ?, 'Task Completion', NOW(), ?)");
-        $stmt->bind_param("iid", $user_id, $task_id, $task_value);
-        $stmt->execute();
+            // Insert earnings entry
+            $stmt = $conn->prepare("INSERT INTO earnings (user_id, task_id, source, earned_date, amount) 
+                                    VALUES (?, ?, ?, NOW(), ?)");
+            $stmt->bind_param("iisd", $user_id, $task_id, $task_name, $task_value);
+            $stmt->execute();
 
-        // Update user's total earnings
-        $stmt = $conn->prepare("UPDATE user_earnings SET total_earnings = total_earnings + ? WHERE user_id = ?");
-        $stmt->bind_param("di", $task_value, $user_id);
-        $stmt->execute();
+            // Update user's total earnings
+            $stmt = $conn->prepare("UPDATE user_earnings SET total_earnings = total_earnings + ? WHERE user_id = ?");
+            $stmt->bind_param("di", $task_value, $user_id);
+            $stmt->execute();
 
-        $message = "Task approved and earnings added.";
+            // Update current goal's earnings if exists
+            $stmt = $conn->prepare("UPDATE savings_goals SET current_earnings = current_earnings + ? WHERE user_id = ? AND status = 'active'");
+            $stmt->bind_param("di", $task_value, $user_id);
+            $stmt->execute();
+
+            $conn->commit();
+            $message = "Task approved and earnings added.";
+        } catch (Exception $e) {
+            $conn->rollback();
+            $message = "Error approving task: " . $e->getMessage();
+        }
     }
 
     if (isset($_POST['reject_task'])) {
